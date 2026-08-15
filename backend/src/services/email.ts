@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import AppError from "../utils/appError";
+import AppError from "../utils/appError.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -11,7 +11,7 @@ export type emailParams = {
 
 export async function sendMail({ to, subject, body }: emailParams) {
   const { data, error } = await resend.emails.send({
-    from: "Trackify <hello@memorymap.space>",
+    from: "Memorymap <hello@memorymap.space>",
     to,
     subject,
     html: body,

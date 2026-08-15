@@ -1,63 +1,64 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import cors from "cors";
-import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-import cookieParser from "cookie-parser";
 import hpp from "hpp";
-import compression from "compression";
-import { toNodeHandler } from "better-auth/node";
+import morgan from "morgan";
 
-import { fromNodeHeaders } from "better-auth/node";
+import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 
-const app = express();
+import AppError from "./utils/appError.js";
+import globalErrorHandler from "./controllers/error.controller.js";
 
-app.set("trust proxy", 1);
+const app = express();
+// 1. Security headers
 app.use(helmet());
+
+// 2. API call control
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   }),
 );
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
-const apiLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 1000,
-  message: {
-    status: "fail",
-    message: "Too many requests. Please try again later.",
-  },
+
+// Logger
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
+// 3. Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  message: "Too many requests, please try again later.",
 });
-app.use(apiLimiter);
+app.use(limiter);
 
-// BETTER AUTH MIDDLEWARE
-app.all("/api/auth/*splat", toNodeHandler(auth));
-
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-app.use(cookieParser());
+// 4. Prevent parameter pollution
 app.use(
   hpp({
-    whitelist: ["sort", "fields", "tags"],
+    whitelist: [], // ["sort", "fields", "tags"],
   }),
 );
-app.use(compression());
 
-// ROUTES
+// Better auth handler
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
-// UNHANDLED ROUTES
+// 5. Limit request body size
+app.use(express.json({ limit: "10kb" }));
+
+// app routes
+
+// Route not found
 app.use((req: Request, res: Response, next: NextFunction) => {
-  return next(new Error(`Can't find ${req.originalUrl} on this server!`));
+  return next(
+    new AppError(`Can't find ${req.originalUrl} on this server!`, 404),
+  );
 });
 
-// GLOBAL ERROR HANDLER
-// app.use(globalErrorHandler);
+// Global error handler
+app.use(globalErrorHandler);
 
 export default app;
