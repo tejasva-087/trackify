@@ -5,9 +5,15 @@ type ButtonProp = {
   className?: string;
   children: ReactNode;
   to?: string;
+  disabled?: boolean;
 };
 
-function Button({ children, to, className = "" }: ButtonProp) {
+function Button({
+  children,
+  to,
+  className = "",
+  disabled = false,
+}: ButtonProp) {
   if (to)
     return (
       <Link
@@ -20,6 +26,7 @@ function Button({ children, to, className = "" }: ButtonProp) {
   return (
     <button
       className={`border border-white-tertiary p-3 flex gap-2 items-center justify-center w-full rounded-md cursor-pointer ${className}`}
+      disabled={disabled}
     >
       {children}
     </button>

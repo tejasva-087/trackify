@@ -11,5 +11,6 @@
   --color-black-secondary: #1f1f1f;
   --color-black-tertiary: #2e2e2e;
 
-  --default-font-family: "General Sans", sans-serif;
+  --color-danger:
+    var(--color-red-500) --default-font-family: "General Sans", sans-serif;
 }
