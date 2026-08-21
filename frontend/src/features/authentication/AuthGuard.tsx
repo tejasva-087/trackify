@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import useUser from "./useUser";
+import useUser from "./hooks/useUser";
 import Spinner from "../../ui/Spinner";
 
 type AuthGuardProps = {

@@ -7,11 +7,14 @@ function useVerifyEmail() {
   const { mutate: sendVerification, isPending: isSendingVerification } =
     useMutation({
       mutationFn: resendVerification,
-      onSuccess: (data) => {
-        console.log(data);
+      onSuccess: () => {
+        toast.success(
+          "A verification mail has bees sent to your email account.",
+        );
       },
       onError: (error) => {
         console.error(error);
+        toast.error("There was an error sending verification mail.");
       },
     });
 

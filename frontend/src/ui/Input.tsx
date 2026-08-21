@@ -9,7 +9,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         type={type}
         placeholder={placeholder}
-        className={`block border w-full p-2 rounded-md border-white-tertiary ${className}`}
+        className={`block border w-full p-2 rounded-md border-white-tertiary disabled:bg-white-tertiary disabled:cursor-none ${className}`}
         {...rest}
       />
     );

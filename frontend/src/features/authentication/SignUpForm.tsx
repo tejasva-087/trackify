@@ -1,11 +1,14 @@
 import { useForm } from "react-hook-form";
+
+import type { SignUpParams } from "../../services/apiAuth";
+import useSignUp from "./hooks/useSignUp";
+
 import Button from "../../ui/Button";
 import Divider from "../../ui/Divider";
 import Input from "../../ui/Input";
 import Label from "../../ui/Label";
 import SocialSignUp from "./SocialSignUp";
-import type { SignUpParams } from "../../services/apiAuth";
-import useSignUp from "./useSignUp";
+import Text from "../../ui/Text";
 
 function SignUpForm() {
   const { register, handleSubmit, formState, reset } = useForm<SignUpParams>();
@@ -23,47 +26,55 @@ function SignUpForm() {
   }
 
   return (
-    <div className="space-y-3 w-full">
+    <div className="w-full">
       <SocialSignUp />
 
       <Divider />
 
-      <form className="space-y-2 mb-6" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-2 mb-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
           <Label id="name">Name</Label>
           <Input
             placeholder="eg: John Doe"
             id="name"
-            {...register("name", { required: "This field is required" })}
+            {...register("name", { required: "Please enter your name." })}
             disabled={isSigningUp}
           />
-          <p className="text-sm text-danger">{errors?.name?.message}</p>
+          <Text className="text-xs text-danger!">
+            {errors?.name?.message || ""}
+          </Text>
         </div>
         <div>
           <Label id="email">Email</Label>
           <Input
+            type="email"
             placeholder="eg: johndoe@email.com"
             id="email"
-            {...register("email", { required: "This field is required" })}
+            {...register("email", {
+              required: "Please enter your email address.",
+            })}
             disabled={isSigningUp}
           />
-          <p className="text-sm text-danger">{errors?.email?.message}</p>
+          <Text className="text-xs text-danger!">
+            {errors?.email?.message || ""}
+          </Text>
         </div>
         <div>
           <Label id="password">Password</Label>
           <Input
-            placeholder="eg: johndoe@email.com"
+            type="password"
             id="password"
-            {...register("password", { required: "This field is required" })}
+            {...register("password", {
+              required: "Please enter your password.",
+            })}
             disabled={isSigningUp}
           />
-          <p className="text-sm text-danger">{errors?.password?.message}</p>
+          <Text className="text-xs text-danger!">
+            {errors?.password?.message || ""}
+          </Text>
         </div>
 
-        <Button
-          className="bg-primary text-white-primary"
-          disabled={isSigningUp}
-        >
+        <Button type="primary" disabled={isSigningUp}>
           Sign up
         </Button>
       </form>

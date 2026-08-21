@@ -18,7 +18,7 @@ app.use(helmet());
 // 2. API call control
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.BETTER_AUTH_TRUSTED_ORIGIN,
     credentials: true,
   }),
 );

@@ -1,21 +1,27 @@
 import { useForm } from "react-hook-form";
 
+import useForgotPassword from "./hooks/useForgotPassword";
 import type { ForgotPasswordParams } from "../../services/apiAuth";
+
 import Label from "../../ui/Label";
 import Input from "../../ui/Input";
 import Text from "../../ui/Text";
 import Button from "../../ui/Button";
-import useForgotPassword from "./hooks/useForgotPassword";
 
 function ForgotPasswordForm() {
   const { register, handleSubmit, formState, reset } =
     useForm<ForgotPasswordParams>();
   const { errors } = formState;
 
-  const { sendVerification, isSendingVerification } = useForgotPassword();
+  const { resetPassword, isSendingResetLink } = useForgotPassword();
 
-  function onSubmit(email: string) {
-    sendVerification(email);
+  function onSubmit({ email }: ForgotPasswordParams) {
+    resetPassword(
+      { email },
+      {
+        onSettled: () => reset(),
+      },
+    );
   }
 
   return (
@@ -30,14 +36,16 @@ function ForgotPasswordForm() {
             {...register("email", {
               required: "Please enter your email address.",
             })}
-            disabled={isSendingVerification}
+            disabled={isSendingResetLink}
           />
           <Text className="text-xs text-danger!">
             {errors?.email?.message || ""}
           </Text>
         </div>
 
-        <Button type="primary">Reset password</Button>
+        <Button type="primary" disabled={isSendingResetLink}>
+          Reset password
+        </Button>
       </form>
     </div>
   );

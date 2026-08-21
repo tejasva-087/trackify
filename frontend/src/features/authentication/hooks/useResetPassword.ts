@@ -12,8 +12,8 @@ function useResetPassword() {
         toast.success("password changed successfully.");
       },
       onError: (error) => {
-        toast.success(error.message);
         console.error(error);
+        toast.error(error.message);
       },
     },
   );

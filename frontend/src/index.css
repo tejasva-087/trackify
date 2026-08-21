@@ -2,15 +2,21 @@
 
 @theme {
   --color-primary: #0842a0;
+  --color-primary-tint: #e6ecf6;
 
   --color-white-primary: #ffffff;
   --color-white-secondary: #f2f2f2;
   --color-white-tertiary: #e6e6e6;
 
-  --color-black-primary: #0f0f0f;
-  --color-black-secondary: #1f1f1f;
-  --color-black-tertiary: #2e2e2e;
+  --color-black-primary: #181818;
+  --color-black-secondary: #303030;
+  --color-black-tertiary: #616161;
 
-  --color-danger:
-    var(--color-red-500) --default-font-family: "General Sans", sans-serif;
+  --color-danger: var(--color-red-500);
+  --color-danger-tint: var(--color-red-50);
+
+  --color-success: var(--color-green-500);
+  --color-success-tint: var(--color-green-50);
+
+  --default-font-family: "General Sans", sans-serif;
 }

@@ -1,4 +1,4 @@
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import useResetPassword from "./hooks/useResetPassword";
@@ -7,6 +7,7 @@ import Label from "../../ui/Label";
 import Input from "../../ui/Input";
 import Text from "../../ui/Text";
 import Button from "../../ui/Button";
+import { useEffect } from "react";
 
 type ResetPasswordFormValues = {
   newPassword: string;
@@ -20,16 +21,17 @@ function ForgotPasswordForm() {
 
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-
   const navigate = useNavigate();
   const { resetPassword, isResettingPassword } = useResetPassword();
+
+  useEffect(() => {
+    if (!token) navigate("/log-in");
+  }, [token, navigate]);
 
   function onSubmit({ newPassword }: ResetPasswordFormValues) {
     if (!token) {
       return navigate("/log-in");
     }
-
-    console.log(token);
 
     resetPassword(
       { newPassword, token },

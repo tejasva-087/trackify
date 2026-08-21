@@ -7,13 +7,13 @@ import {
   startResendCooldown,
 } from "../../utils/resendCooldown";
 
-import useVerifyEmail from "./useVerifyEmail";
-import useUser from "./useUser";
+import useVerifyEmail from "./hooks/useVerifyEmail";
+import useUser from "./hooks/useUser";
 
 import Text from "../../ui/Text";
 
 function VerifyEmail() {
-  const { sendVerification, sendingVerification } = useVerifyEmail();
+  const { sendVerification, isSendingVerification } = useVerifyEmail();
   const { user, isPending: loadingUser } = useUser();
 
   const [resendUntil, setResendUntil] = useLocalStorageState<number | null>(
@@ -33,7 +33,7 @@ function VerifyEmail() {
     });
   }
 
-  const isDisabled = isRunning || sendingVerification || loadingUser || !user;
+  const isDisabled = isRunning || isSendingVerification || loadingUser || !user;
 
   return (
     <Text>
@@ -48,7 +48,7 @@ function VerifyEmail() {
               : "text-primary underline"
           }
         >
-          {sendingVerification ? "Sending..." : "Resend it"}
+          {isSendingVerification ? "Sending..." : "Resend it"}
         </button>
         {isRunning && (
           <span className="text-gray-400"> ({formatTime(remaining)})</span>

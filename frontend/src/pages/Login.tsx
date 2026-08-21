@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import LoginForm from "../features/authentication/LoginForm";
 import Text from "../ui/Text";
 
-function Login() {
+function LogIn() {
   return (
     <>
       <header className="space-y-2 mb-6">
@@ -26,4 +26,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default LogIn;

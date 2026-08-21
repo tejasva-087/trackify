@@ -7,10 +7,11 @@ function useForgotPassword() {
   const { mutate: resetPassword, isPending: isSendingResetLink } = useMutation({
     mutationFn: forgotPasswordApi,
     onSuccess: (data) => {
-      console.log(data);
+      toast.success(data.message);
     },
     onError: (error) => {
       console.error(error);
+      toast.error("There was an error sending the reset link.");
     },
   });
 
