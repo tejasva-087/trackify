@@ -1,5 +1,7 @@
+import CalenderView from "../ui/CalenderView";
+
 function Application() {
-  return <div>Application</div>;
+  return <CalenderView />;
 }
 
 export default Application;

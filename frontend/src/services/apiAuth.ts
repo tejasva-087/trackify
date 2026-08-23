@@ -41,11 +41,10 @@ export async function logIn({ email, password }: LogInParams) {
   return data;
 }
 
-// TODO: remove the link and replace with forntend url
 export async function resendVerification(email: string) {
   const { data, error } = await authClient.sendVerificationEmail({
     email,
-    callbackURL: "http://localhost:5173/application",
+    callbackURL: `${import.meta.env.FRONTEND_URL}/application`,
   });
 
   if (error) {
@@ -56,14 +55,13 @@ export async function resendVerification(email: string) {
   return data;
 }
 
-// TODO: remove the link and replace with forntend url
 export type ForgotPasswordParams = {
   email: string;
 };
 export async function forgotPassword({ email }: ForgotPasswordParams) {
   const { data, error } = await authClient.requestPasswordReset({
     email,
-    redirectTo: "http://localhost:5173/reset-password",
+    redirectTo: `${import.meta.env.FRONTEND_URL}/reset-password`,
   });
 
   if (error) {

@@ -1,0 +1,43 @@
+:root {
+  --fc-monarch-primary: #0842a0;
+  --fc-monarch-primary-foreground: #ffffff;
+  --fc-monarch-primary-over: #06326e;
+  --fc-monarch-primary-down: #052a5c;
+
+  --fc-monarch-secondary: #e6ecf6;
+  --fc-monarch-secondary-foreground: #0842a0;
+  --fc-monarch-secondary-over: #d5e0f2;
+  --fc-monarch-secondary-down: #c3d3ec;
+
+  --fc-monarch-tertiary: #0842a0;
+  --fc-monarch-tertiary-foreground: #ffffff;
+  --fc-monarch-tertiary-over: #06326e;
+  --fc-monarch-tertiary-down: #052a5c;
+
+  --fc-monarch-event: var(--fc-monarch-primary);
+  --fc-monarch-event-contrast: var(--fc-monarch-primary-foreground);
+  --fc-monarch-highlight: #e6ecf680;
+  --fc-monarch-now: #dc2626;
+
+  --fc-monarch-selected: #0842a0;
+  --fc-monarch-selected-foreground: #ffffff;
+  --fc-monarch-selected-over: #06326e;
+  --fc-monarch-selected-down: #052a5c;
+  --fc-monarch-outline: #0842a0;
+
+  --fc-monarch-popover: #ffffff;
+
+  --fc-monarch-background: #ffffff;
+  --fc-monarch-faint: #6161611a;
+  --fc-monarch-muted: #61616126;
+  --fc-monarch-strong: #6161614d;
+  --fc-monarch-stronger: #61616159;
+  --fc-monarch-strongest: #61616166;
+
+  --fc-monarch-foreground: #181818;
+  --fc-monarch-faint-foreground: #e6e6e6;
+  --fc-monarch-muted-foreground: #616161;
+
+  --fc-monarch-border: #e6e6e6;
+  --fc-monarch-strong-border: #f2f2f2;
+}
