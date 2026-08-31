@@ -1,16 +1,14 @@
 import { Outlet } from "react-router-dom";
-
-import AppMenu from "../features/application/AppMenu";
-import AppHeader from "../features/application/AppHeader";
+import AppNavigation from "./AppNavigation";
 
 function AppLayout() {
   return (
-    <div className="w-screen h-screen grid grid-cols-[auto_1fr_auto]">
-      <AppHeader />
+    <div className="w-screen h-screen grid grid-cols-[auto_1fr]">
+      <AppNavigation />
       <main className="min-h-0 overflow-hidden">
         <Outlet />
       </main>
-      <AppMenu />
+      {/* <ChatMenu /> */}
     </div>
   );
 }
