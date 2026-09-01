@@ -35,6 +35,19 @@ import "../styles/themeOverrideCalender.css";
 // listYear, listMonth, listWeek, listDay, list
 // multiMonthYear, multiMonth
 
+const events = [
+  {
+    id: "24",
+    title: "Monthly All-Hands",
+    daysOfWeek: ["2"],
+    startTime: "10:00:00",
+    endTime: "11:00:00",
+    startRecur: "2026-09-01",
+    endRecur: "2027-09-01",
+    editable: false,
+  },
+];
+
 function CalenderView() {
   const calendarRef = useRef<CalendarRef>(null);
 
@@ -85,6 +98,7 @@ function CalenderView() {
           themePlugin,
         ]}
         initialView="timeGridWeek"
+        nowIndicator
         headerToolbar={{
           left: "prev,next today",
           center: "title",
@@ -105,6 +119,7 @@ function CalenderView() {
         eventResize={handleEventResize}
         // Caps how many events show stacked in a single day cell (mainly relevant in dayGridMonth view) before collapsing the rest into a "+N more" link.
         dayMaxEvents
+        events={events}
       />
     </div>
   );
