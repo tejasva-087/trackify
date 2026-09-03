@@ -1,7 +1,7 @@
 import { TextIndentIcon, TextOutdentIcon } from "@phosphor-icons/react";
 import MenuBar from "./MenuBar";
 import Logo from "./Logo";
-import Text from "./Text";
+import MiniCalender from "./MiniCalender";
 
 function AppNavigation() {
   return (
@@ -24,33 +24,19 @@ function AppNavigation() {
             }
           </MenuBar.Trigger>
 
-          <MenuBar.Header>
-            {(isOpen) => (
-              <div
-                className={`flex items-center gap-1 my-2 ${isOpen ? "flex-row" : "flex-col"} shrink-0`}
-              >
-                <Logo className="w-12" />
-                <Text type="h3" className={isOpen ? "visible" : "hidden"}>
-                  Trackify
-                </Text>
-              </div>
-            )}
-          </MenuBar.Header>
+          <MenuBar.Item
+            item={<Logo className="w-12" />}
+            text="Trackify"
+            type="bold"
+          />
         </MenuBar.TopBar>
+
+        <MenuBar.Content>
+          <MiniCalender />
+        </MenuBar.Content>
       </MenuBar.Window>
     </MenuBar>
   );
 }
 
 export default AppNavigation;
-{
-  /* <MenuBar.Header>
-          <MenuHeader />
-        </MenuBar.Header>
-        <MenuBar.Trigger>
-          <OpenMenuButton />
-        </MenuBar.Trigger>
-        <MenuBar.Content side="left">
-          <MenuAndAllStuff />
-        </MenuBar.Content> */
-}

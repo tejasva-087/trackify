@@ -14,6 +14,7 @@ import type {
   EventDropInfo,
   EventResizeDoneInfo,
 } from "@fullcalendar/react";
+
 import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";

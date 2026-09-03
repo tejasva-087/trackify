@@ -1,17 +1,12 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  type ReactElement,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import Text from "./Text";
 
 type MenuBarContext = {
   isOpen: boolean;
   toggle: () => void;
 };
 const MenuBarContext = createContext<MenuBarContext | undefined>(undefined);
-function MenuBar({ children }: { children: ReactElement }) {
+function MenuBar({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   function toggle() {
@@ -66,7 +61,7 @@ function TopBar({
 
   return (
     <div
-      className={`flex gap-2 ${
+      className={`flex gap-1 ${
         isOpen
           ? "flex-row-reverse items-center justify-between"
           : "flex-col items-center"
@@ -77,16 +72,30 @@ function TopBar({
   );
 }
 
-MenuBar.TopBar = TopBar;
-
-function Header({
-  children,
+function Item({
+  item,
+  text,
+  type = "normal",
 }: {
-  children: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
+  item: ReactNode;
+  text: string;
+  type?: "bold" | "normal";
 }) {
   const { isOpen } = useMenuBar();
 
-  return <>{typeof children === "function" ? children(isOpen) : children}</>;
+  return (
+    <div
+      className={`flex items-center gap-1 my-2 ${isOpen ? "flex-row" : "flex-col"} shrink-0`}
+    >
+      {item}
+      <Text
+        type={type === "normal" ? "p" : "h3"}
+        className={isOpen ? "visible" : "hidden"}
+      >
+        {text}
+      </Text>
+    </div>
+  );
 }
 
 function Trigger({
@@ -109,8 +118,26 @@ function Trigger({
   );
 }
 
+function Content({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const { isOpen } = useMenuBar();
+
+  return (
+    <div className={`w-full ${isOpen ? "block" : "hidden"} ${className}`}>
+      {children}
+    </div>
+  );
+}
+
 MenuBar.Window = Window;
-MenuBar.Header = Header;
+MenuBar.TopBar = TopBar;
 MenuBar.Trigger = Trigger;
+MenuBar.Item = Item;
+MenuBar.Content = Content;
 
 export default MenuBar;
