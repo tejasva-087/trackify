@@ -2,96 +2,115 @@ import {
   createContext,
   useContext,
   useState,
-  type Dispatch,
+  type ReactElement,
   type ReactNode,
-  type SetStateAction,
 } from "react";
 
-import Logo from "./Logo";
-import Text from "./Text";
-
-type MenuBarProps = {
-  className?: string;
-  children: ReactNode;
-};
 type MenuBarContext = {
   isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  toggle: () => void;
 };
-
 const MenuBarContext = createContext<MenuBarContext | undefined>(undefined);
-
-function MenuBar({ className, children }: MenuBarProps) {
+function MenuBar({ children }: { children: ReactElement }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  function toggle() {
+    setIsOpen(!isOpen);
+  }
+
   return (
-    <MenuBarContext.Provider value={{ isOpen, setIsOpen }}>
-      <div
-        className={`h-full relative w-18
-      `}
-      >
-        <nav
-          className={`bg-white-primary border-r border-white-tertiary absolute top-0 left-0 z-10 h-screen p-3 transition-all duration-300 ${isOpen ? "w-64" : "w-18"} ${className}`}
-        >
-          {children}
-        </nav>
-      </div>
+    <MenuBarContext.Provider value={{ isOpen, toggle }}>
+      {children}
     </MenuBarContext.Provider>
   );
 }
-
-function useMenuBarContext() {
+function useMenuBar() {
   const context = useContext(MenuBarContext);
-  if (!context) {
+
+  if (!context)
     throw new Error(
-      "MenuBar compound components must be used within a MenuBar",
+      "MenuBarContext can not be used outside the MenuBar component.",
     );
-  }
+
   return context;
 }
 
-function FlexibleLogo() {
-  const { isOpen } = useMenuBarContext();
+function Window({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const { isOpen } = useMenuBar();
+
   return (
-    <div className={`grid grid-cols-[auto_1fr] items-center gap-1`}>
-      <Logo className="w-12 h-12" />
-      <Text
-        type="h3"
-        className={`overflow-hidden whitespace-nowrap transition-all ${
-          isOpen
-            ? "opacity-100 max-w-xs duration-300"
-            : "opacity-0 max-w-0 duration-0"
-        }`}
+    <div className={`relative w-18`}>
+      <div
+        className={`border-r border-white-tertiary bg-white-primary flex flex-col p-2 h-screen absolute top-0 left-0 z-10 transition-all duration-300 ${isOpen ? "w-60" : "w-18 items-center justify-start"} ${className}`}
       >
-        Trackify
-      </Text>
+        {children}
+      </div>
     </div>
   );
 }
 
-function OpenButton({
-  openIcon,
-  closeIcon,
+function TopBar({
+  children,
   className = "",
 }: {
-  openIcon: ReactNode;
-  closeIcon: ReactNode;
+  children: ReactNode;
   className?: string;
 }) {
-  const { isOpen, setIsOpen } = useMenuBarContext();
+  const { isOpen } = useMenuBar();
 
   return (
     <div
-      className={`w-full flex items-center ${isOpen ? "justify-end" : "justify-center"} ${className}`}
+      className={`flex gap-2 ${
+        isOpen
+          ? "flex-row-reverse items-center justify-between"
+          : "flex-col items-center"
+      } ${className}`}
     >
-      <button className="cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? closeIcon : openIcon}
-      </button>
+      {children}
     </div>
   );
 }
 
-MenuBar.FlexibleLogo = FlexibleLogo;
-MenuBar.OpenButton = OpenButton;
+MenuBar.TopBar = TopBar;
+
+function Header({
+  children,
+}: {
+  children: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
+}) {
+  const { isOpen } = useMenuBar();
+
+  return <>{typeof children === "function" ? children(isOpen) : children}</>;
+}
+
+function Trigger({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
+  className?: string;
+}) {
+  const { isOpen, toggle } = useMenuBar();
+
+  return (
+    <button
+      className={`w-fit ${className}`}
+      onClick={toggle}
+      aria-expanded={isOpen}
+    >
+      {typeof children === "function" ? children(isOpen) : children}
+    </button>
+  );
+}
+
+MenuBar.Window = Window;
+MenuBar.Header = Header;
+MenuBar.Trigger = Trigger;
 
 export default MenuBar;

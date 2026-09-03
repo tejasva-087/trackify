@@ -6,18 +6,19 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 
 import Landing from "./pages/Landing";
+
 import AuthLayout from "./ui/AuthLayout";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import EmailVerification from "./pages/EmailVerification";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 import AuthGuard from "./features/authentication/AuthGuard";
 import GuestGuard from "./features/authentication/GuestGuard";
 
 import AppLayout from "./ui/AppLayout";
 import Application from "./pages/Application";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient({
   defaultOptions: {

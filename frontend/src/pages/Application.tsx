@@ -1,7 +1,11 @@
-import CalenderView from "../ui/CalenderView";
+import Calendar from "../features/application/Calendar";
 
 function Application() {
-  return <CalenderView />;
+  return (
+    <>
+      <Calendar />
+    </>
+  );
 }
 
 export default Application;

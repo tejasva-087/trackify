@@ -1,5 +1,7 @@
 import {
   boolean,
+  date,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -17,14 +19,35 @@ export const statusEnum = pgEnum("status", [
 ]);
 
 export const task = pgTable("task", {
+  userId: text("userId").references(() => user.id, { onDelete: "cascade" }),
+
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("userId").references(() => user.id),
+
   title: text("title").notNull(),
+  description: text("description"),
+
   start: timestamp("start", { withTimezone: true }),
   end: timestamp("end", { withTimezone: true }),
-  priority: priorityEnum("priority"),
-  flexible: boolean("flexible"),
-  recurrence: text("recurrence"),
-  status: statusEnum("status").default("scheduled"),
-  createdAt: timestamp("created_at"),
+  allDay: boolean("allDay").default(false),
+
+  url: text("url"),
+
+  color: text("color"),
+  contrastColor: text("contrastColor"),
+
+  groupId: text("groupId"),
+
+  daysOfWeek: integer("daysOfWeek").array(),
+  startRecur: date("startRecur"),
+  endRecur: date("endRecur"),
+
+  startTime: text("startTime"),
+  endTime: text("endTime"),
+
+  createdAt: timestamp("createdAt", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });

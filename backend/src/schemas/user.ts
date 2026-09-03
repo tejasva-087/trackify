@@ -21,3 +21,6 @@ export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
 }));
+
+// TODO: Search about these
+// display: "background", "list-item", "none"
