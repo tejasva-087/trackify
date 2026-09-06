@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import FullCalendar, { type CalendarRef } from "@fullcalendar/react";
+import type { DateSelectInfo } from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
 import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/monarch";
@@ -8,11 +8,14 @@ import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../styles/themeOverrideCalender.css";
-import { useCalendarContext } from "../features/application/context/CalenderContext";
+import { useRef, useState } from "react";
 
 function MiniCalender() {
   const calendarRef = useRef<CalendarRef>(null);
-  const { goToDate } = useCalendarContext();
+  const [selectedRange, setSelectedRange] = useState<DateSelectInfo | null>(
+    null,
+  );
+  console.log(selectedRange);
 
   return (
     <FullCalendar
@@ -20,9 +23,8 @@ function MiniCalender() {
       plugins={[interactionPlugin, dayGridPlugin, themePlugin]}
       initialView="dayGridMonth"
       borderless
-      dateClick={(arg) => {
-        goToDate(arg.date);
-      }}
+      selectable
+      select={(selectInfo) => setSelectedRange(selectInfo)}
       dayCellDidMount={(arg) => {
         arg.el.style.cursor = "pointer";
       }}

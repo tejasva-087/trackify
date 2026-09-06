@@ -13,6 +13,7 @@ const TOKEN_EXPIRATION = 10 * 60 * 1000;
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
+  basePath: "/api/v1/auth",
   trustedOrigins: [process.env.BETTER_AUTH_TRUSTED_ORIGIN as string],
   database: drizzleAdapter(db, {
     provider: "pg",

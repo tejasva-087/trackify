@@ -9,33 +9,33 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./user.js";
+import { relations } from "drizzle-orm";
 
-const priorityEnum = pgEnum("priority", ["high", "medium", "low"]);
-
+export const priorityEnum = pgEnum("priority", ["high", "medium", "low"]);
 export const statusEnum = pgEnum("status", [
   "scheduled",
   "conflicted",
   "resolved",
 ]);
 
-export const task = pgTable("task", {
-  userId: text("userId").references(() => user.id, { onDelete: "cascade" }),
+export const event = pgTable("event", {
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
 
   id: uuid("id").primaryKey().defaultRandom(),
 
   title: text("title").notNull(),
   description: text("description"),
 
-  start: timestamp("start", { withTimezone: true }),
-  end: timestamp("end", { withTimezone: true }),
+  start: timestamp("start", { withTimezone: true, mode: "string" }),
+  end: timestamp("end", { withTimezone: true, mode: "string" }),
   allDay: boolean("allDay").default(false),
 
   url: text("url"),
 
   color: text("color"),
   contrastColor: text("contrastColor"),
-
-  groupId: text("groupId"),
 
   daysOfWeek: integer("daysOfWeek").array(),
   startRecur: date("startRecur"),
@@ -44,6 +44,11 @@ export const task = pgTable("task", {
   startTime: text("startTime"),
   endTime: text("endTime"),
 
+  editable: boolean(),
+
+  priority: priorityEnum("priority"),
+  status: statusEnum("status"),
+
   createdAt: timestamp("createdAt", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -51,3 +56,10 @@ export const task = pgTable("task", {
     .defaultNow()
     .notNull(),
 });
+
+export const eventRelations = relations(event, ({ one }) => ({
+  user: one(user, {
+    fields: [event.userId],
+    references: [user.id],
+  }),
+}));

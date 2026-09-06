@@ -8,6 +8,8 @@ import morgan from "morgan";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 
+import eventRouters from "./routes/task.route.js";
+
 import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/error.controller.js";
 
@@ -44,12 +46,13 @@ app.use(
 );
 
 // Better auth handler
-app.all("/api/auth/{*any}", toNodeHandler(auth));
+app.all("/api/v1/auth/{*any}", toNodeHandler(auth));
 
 // 5. Limit request body size
 app.use(express.json({ limit: "10kb" }));
 
 // app routes
+app.use("/api/v1/event", eventRouters);
 
 // Route not found
 app.use((req: Request, res: Response, next: NextFunction) => {

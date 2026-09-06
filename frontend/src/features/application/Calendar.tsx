@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
@@ -10,7 +10,6 @@ import themePlugin from "@fullcalendar/react/themes/monarch";
 import type {
   CalendarRef,
   DateSelectInfo,
-  EventClickInfo,
   EventDropInfo,
   EventResizeDoneInfo,
 } from "@fullcalendar/react";
@@ -19,6 +18,7 @@ import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../../styles/themeOverrideCalender.css";
+import { useCalendarContext } from "./context/CalenderContext";
 
 // monarch: blue, green, purple, red, yellow
 // breezy: emerald, amber, indigo, rose
@@ -51,15 +51,40 @@ const events = [
 ];
 
 function Calendar() {
-  const [selectedRange, setSelectedRange] = useState<DateSelectInfo | null>(
-    null,
-  );
-  console.log(selectedRange);
-  const [selectedEvent, setSelectedEvent] = useState<EventClickInfo | null>(
-    null,
-  );
-
   const calendarRef = useRef<CalendarRef>(null);
+  const { selectedDate, goToDate, openEventModal } = useCalendarContext();
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.gotoDate(selectedDate);
+    calendarApi?.changeView("timeGridDay", selectedDate);
+  }, [selectedDate]);
+
+  function handleSelectedDate(selectInfo: DateSelectInfo) {
+    const target = selectInfo.jsEvent?.target as HTMLElement | undefined;
+    const rect = target
+      ?.closest(".fc-timegrid-slot, .fc-daygrid-day")
+      ?.getBoundingClientRect();
+
+    const position = rect
+      ? { x: rect.left, y: rect.top }
+      : {
+          x: selectInfo.jsEvent?.clientX ?? window.innerWidth / 2,
+          y: selectInfo.jsEvent?.clientY ?? window.innerHeight / 2,
+        };
+
+    openEventModal(
+      {
+        start: selectInfo.start,
+        end: selectInfo.end,
+        allDay: selectInfo.allDay,
+      },
+      position,
+    );
+
+    selectInfo.view.calendar.unselect();
+  }
 
   function handleEventDrop(dropInfo: EventDropInfo) {
     console.log(dropInfo);
@@ -100,21 +125,24 @@ function Calendar() {
             right: "timeGridWeek,timeGridDay,dayGridMonth",
           }}
           headerToolbarClass="border-b"
-          // INTERACTION PART
-          selectable // Enables users to click-and-drag across empty calendar cells
+          // Navigation in calender
+          dayCellDidMount={(arg) => {
+            arg.el.style.cursor = "pointer";
+          }}
+          dateClick={(arg) => {
+            if (arg.view.type === "dayGridMonth") {
+              goToDate(arg.date);
+            }
+          }}
+          // Adding new event
+          selectable
           selectMirror
-          select={(selectInfo) => setSelectedRange(selectInfo)}
-          unselect={() => setSelectedRange(null)}
-          // unselect={}
-          // enables both dragging events to a new time (eventStartEditable) and resizing their duration (eventDurationEditable)
+          select={handleSelectedDate}
+          // unselect={() => setSelectedRange(null)}
           editable
-          // Fires when the user clicks on an existing event
-          eventClick={(eventInfo) => setSelectedEvent(eventInfo)}
-          // Fires after a user drags an existing event to a different date/time and drops it.
+          // eventClick={(eventInfo) => setSelectedEvent(eventInfo)}
           eventDrop={handleEventDrop}
-          // Same idea as eventDrop, but fires when a user drags the edge of an event to change its duration instead of moving it
           eventResize={handleEventResize}
-          // Caps how many events show stacked in a single day cell (mainly relevant in dayGridMonth view) before collapsing the rest into a "+N more" link.
           dayMaxEvents
           events={events}
         />
