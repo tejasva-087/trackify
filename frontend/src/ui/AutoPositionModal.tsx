@@ -7,6 +7,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { useIsMobile } from "../hooks/useIsMobile";
+
 type Position = {
   x: number;
   y: number;
@@ -29,14 +31,15 @@ const MODAL_WIDTH = 360;
 const VIEWPORT_PADDING = 12;
 
 function Modal({ position, onClose, children }: ModalProps) {
+  const isMobile = useIsMobile();
   const modalRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState<{
     top: number;
     left: number;
-    placement: "right" | "left";
   } | null>(null);
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const modalEl = modalRef.current;
     if (!modalEl) return;
 
@@ -46,12 +49,8 @@ function Modal({ position, onClose, children }: ModalProps) {
     const viewportHeight = window.innerHeight;
 
     let left = position.right + GAP;
-    let placement: "right" | "left" = "right";
-
     if (left + modalWidth + VIEWPORT_PADDING > viewportWidth) {
       left = position.left - modalWidth - GAP;
-      placement = "left";
-
       if (left < VIEWPORT_PADDING) {
         left = Math.max(
           VIEWPORT_PADDING,
@@ -64,21 +63,18 @@ function Modal({ position, onClose, children }: ModalProps) {
     if (top + modalHeight + VIEWPORT_PADDING > viewportHeight) {
       top = viewportHeight - modalHeight - VIEWPORT_PADDING;
     }
-    if (top < VIEWPORT_PADDING) {
-      top = VIEWPORT_PADDING;
-    }
+    if (top < VIEWPORT_PADDING) top = VIEWPORT_PADDING;
 
-    setCoords({ top, left, placement });
-  }, [position]);
+    setCoords({ top, left });
+  }, [position, isMobile]);
 
-  // Close on click outside the popover.
+  // Outside click, escape, scroll — same for both modes
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
         onClose();
       }
     }
-    // Defer so the click that opened the modal doesn't immediately close it.
     const id = requestAnimationFrame(() => {
       document.addEventListener("mousedown", handleClick);
     });
@@ -88,27 +84,51 @@ function Modal({ position, onClose, children }: ModalProps) {
     };
   }, [onClose]);
 
-  // Close on Escape, and on scroll (GCal does this too, since the anchor moves).
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isMobile) return; // don't close-on-scroll for a bottom sheet
     function handleScroll() {
       onClose();
     }
-    document.addEventListener("keydown", handleKey);
     window.addEventListener("scroll", handleScroll, true);
-    return () => {
-      document.removeEventListener("keydown", handleKey);
-      window.removeEventListener("scroll", handleScroll, true);
-    };
-  }, [onClose]);
+    return () => window.removeEventListener("scroll", handleScroll, true);
+  }, [onClose, isMobile]);
+
+  if (isMobile) {
+    return createPortal(
+      <div className="fixed inset-0 z-100 flex items-end">
+        <div
+          className="absolute inset-0 bg-black/30"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div
+          ref={modalRef}
+          role="dialog"
+          data-calendar-popover
+          className="relative z-10 w-full rounded-t-2xl bg-white shadow-2xl max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200"
+        >
+          <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-gray-300" />
+          <div className="p-4">{children}</div>
+        </div>
+      </div>,
+      document.body,
+    );
+  }
 
   return createPortal(
     <div
       ref={modalRef}
       role="dialog"
-      className="fixed z-50 rounded-lg bg-white shadow-2xl ring-1 ring-black/10"
+      data-calendar-popover
+      className="fixed z-100 rounded-lg bg-white shadow-2xl ring-1 ring-black/10"
       style={{
         top: coords?.top ?? position.top,
         left: coords?.left ?? position.right + GAP,

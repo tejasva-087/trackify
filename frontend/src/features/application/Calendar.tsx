@@ -7,6 +7,7 @@ import listPlugin from "@fullcalendar/react/list";
 import multimonthPlugin from "@fullcalendar/react/multimonth";
 import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/monarch";
+
 import type {
   CalendarRef,
   DateSelectInfo,
@@ -15,11 +16,13 @@ import type {
   EventResizeDoneInfo,
 } from "@fullcalendar/react";
 
+import { useCalendar } from "./context/CalenderContext";
+import { useIsMobile } from "../../hooks/useIsMobile";
+
 import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../../styles/themeOverrideCalender.css";
-import { useCalendar } from "./context/CalenderContext";
 
 const events = [
   {
@@ -37,19 +40,47 @@ const events = [
 
 function Calendar() {
   const calendarRef = useRef<CalendarRef>(null);
-  const { selectedDate, goToDate, openEventId, openSelection, closeEvent } =
-    useCalendar();
+
+  const isMobile = useIsMobile();
+
+  const { selectedDate, goToDate, openSelection, closeEvent } = useCalendar();
+
+  useEffect(() => {
+    const calendarApi = calendarRef.current?.getApi();
+
+    if (!calendarApi) return;
+
+    const currentType = calendarApi.view.type;
+
+    if (isMobile && currentType === "timeGridWeek") {
+      calendarApi.changeView("timeGridThreeDay");
+    }
+
+    if (!isMobile && currentType === "timeGridThreeDay") {
+      calendarApi.changeView("timeGridWeek");
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (!selectedDate) return;
+
     const calendarApi = calendarRef.current?.getApi();
-    calendarApi?.gotoDate(selectedDate);
-    calendarApi?.changeView("timeGridDay", selectedDate);
+
+    if (!calendarApi) return;
+
+    calendarApi.gotoDate(selectedDate);
+    calendarApi.changeView("timeGridDay", selectedDate);
   }, [selectedDate]);
 
   function handleSelect(selectInfo: DateSelectInfo) {
-    const targetEl = selectInfo.jsEvent?.target as HTMLElement;
-    const cellEl = targetEl.closest('[role="button"]')!;
+    const target = selectInfo.jsEvent?.target;
+
+    if (!(target instanceof HTMLElement)) return;
+
+    const cellEl = target.closest('[role="button"]');
+
+    if (!cellEl) return;
+
     const rect = cellEl.getBoundingClientRect();
 
     const position = {
@@ -74,76 +105,88 @@ function Calendar() {
   }
 
   function handleEventClick(eventInfo: EventClickInfo) {
-    const position = {
-      x: eventInfo.jsEvent?.clientX as number,
-      y: eventInfo.jsEvent?.clientY as number,
-    };
-
-    openEventId(eventInfo.event.id, position);
+    console.log("Event clicked:", eventInfo.event);
   }
 
   function handleEventDrop(dropInfo: EventDropInfo) {
-    console.log(dropInfo);
-
-    console.log(dropInfo.event);
-    console.log(dropInfo.oldEvent);
-    console.log(dropInfo.delta);
+    console.log("Event dropped:", dropInfo.event);
+    console.log("Old event:", dropInfo.oldEvent);
+    console.log("Delta:", dropInfo.delta);
   }
 
   function handleEventResize(resizeInfo: EventResizeDoneInfo) {
-    console.log(resizeInfo);
-
-    console.log(resizeInfo.event);
-    console.log(resizeInfo.oldEvent);
-    console.log(resizeInfo.endDelta);
+    console.log("Event resized:", resizeInfo.event);
+    console.log("Old event:", resizeInfo.oldEvent);
+    console.log("End delta:", resizeInfo.endDelta);
   }
 
   return (
-    <>
-      <div className="h-full w-full min-h-0">
-        <FullCalendar
-          ref={calendarRef}
-          borderless
-          height="100%"
-          plugins={[
-            interactionPlugin,
-            dayGridPlugin,
-            timegridPlugin,
-            listPlugin,
-            multimonthPlugin,
-            themePlugin,
-          ]}
-          initialView="timeGridWeek"
-          nowIndicator
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "timeGridWeek,timeGridDay,dayGridMonth",
-          }}
-          headerToolbarClass="border-b"
-          // Navigation in calender
-          dayCellDidMount={(arg) => {
-            arg.el.style.cursor = "pointer";
-          }}
-          dateClick={(arg) => {
-            if (arg.view.type === "dayGridMonth") {
-              goToDate(arg.date);
-            }
-          }}
-          // Adding new event
-          selectable
-          selectMirror
-          select={handleSelect}
-          unselect={() => closeEvent()}
-          editable
-          eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
-          dayMaxEvents
-          events={events}
-        />
-      </div>
-    </>
+    <div className="h-full w-full min-h-0">
+      <FullCalendar
+        ref={calendarRef}
+        borderless
+        height="100%"
+        plugins={[
+          interactionPlugin,
+          dayGridPlugin,
+          timegridPlugin,
+          listPlugin,
+          multimonthPlugin,
+          themePlugin,
+        ]}
+        initialView={isMobile ? "timeGridThreeDay" : "timeGridWeek"}
+        buttons={{
+          timeGridThreeDay: {
+            text: "3 days",
+          },
+        }}
+        views={{
+          timeGridThreeDay: {
+            type: "timeGrid",
+            duration: {
+              days: 3,
+            },
+          },
+        }}
+        nowIndicator
+        headerToolbar={{
+          left: "prev,next today",
+          center: "title",
+          right: isMobile
+            ? "timeGridThreeDay,timeGridDay"
+            : "timeGridWeek,timeGridDay,dayGridMonth",
+        }}
+        headerToolbarClass="border-b"
+        /*
+         * Navigation
+         */
+        dayCellDidMount={(arg) => {
+          arg.el.style.cursor = "pointer";
+        }}
+        dateClick={(arg) => {
+          if (arg.view.type === "dayGridMonth") {
+            goToDate(arg.date);
+          }
+        }}
+        /*
+         * Selecting a time range
+         */
+        selectable
+        selectMirror
+        select={handleSelect}
+        unselect={closeEvent}
+        unselectCancel="[data-calendar-popover]"
+        /*
+         * Events
+         */
+        editable
+        eventClick={handleEventClick}
+        eventDrop={handleEventDrop}
+        eventResize={handleEventResize}
+        dayMaxEvents
+        events={events}
+      />
+    </div>
   );
 }
 
