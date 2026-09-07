@@ -1,7 +1,7 @@
 import { TextIndentIcon, TextOutdentIcon } from "@phosphor-icons/react";
-import MenuBar from "./MenuBar";
-import Logo from "./Logo";
-import MiniCalender from "./MiniCalender";
+import MenuBar from "../../ui/MenuBar";
+import Logo from "../../ui/Logo";
+import MiniCalendar from "./MiniCalendar";
 
 function AppNavigation() {
   return (
@@ -32,7 +32,7 @@ function AppNavigation() {
         </MenuBar.TopBar>
 
         <MenuBar.Content>
-          <MiniCalender />
+          <MiniCalendar />
         </MenuBar.Content>
       </MenuBar.Window>
     </MenuBar>

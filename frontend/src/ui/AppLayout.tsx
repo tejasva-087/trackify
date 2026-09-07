@@ -1,15 +1,18 @@
 import { Outlet } from "react-router-dom";
-import AppNavigation from "./AppNavigation";
+import AppNavigation from "../features/application/AppNavigation";
+import CalendarProvider from "../features/application/context/CalenderContext";
 
 function AppLayout() {
   return (
-    <div className="w-screen h-screen grid grid-cols-[auto_1fr]">
-      <AppNavigation />
-      <main className="min-h-0 overflow-hidden">
-        <Outlet />
-      </main>
-      {/* <ChatMenu /> */}
-    </div>
+    <CalendarProvider>
+      <div className="w-screen h-screen grid grid-cols-[auto_1fr]">
+        <AppNavigation />
+        <main className="min-h-0 overflow-hidden">
+          <Outlet />
+        </main>
+        {/* <ChatMenu /> */}
+      </div>
+    </CalendarProvider>
   );
 }
 

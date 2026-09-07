@@ -10,6 +10,7 @@ import themePlugin from "@fullcalendar/react/themes/monarch";
 import type {
   CalendarRef,
   DateSelectInfo,
+  EventClickInfo,
   EventDropInfo,
   EventResizeDoneInfo,
 } from "@fullcalendar/react";
@@ -18,33 +19,17 @@ import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../../styles/themeOverrideCalender.css";
-import { useCalendarContext } from "./context/CalenderContext";
-
-// monarch: blue, green, purple, red, yellow
-// breezy: emerald, amber, indigo, rose
-// forma: blue, green, purple, red
-// pulse: blue, green, purple, red
-// classic
-
-// type CalenderViewTypes =
-//   | "dayGridYear"
-//   | "dayGridMonth"
-//   | "dayGridWeek"
-//   | "dayGridDay"
-//   | "dayGrid";
-// timeGridWeek, timeGridDay, timeGrid
-// listYear, listMonth, listWeek, listDay, list
-// multiMonthYear, multiMonth
+import { useCalendar } from "./context/CalenderContext";
 
 const events = [
   {
     id: "21",
     title: "Yoga Class",
-    daysOfWeek: [1, 3, 5], // Mon, Wed, Fri (0=Sun ... 6=Sat)
+    daysOfWeek: [1, 3, 5],
     startTime: "07:00:00",
     endTime: "08:00:00",
-    startRecur: "2026-09-01", // recurrence begins
-    endRecur: "2026-12-31", // recurrence ends (exclusive)
+    startRecur: "2026-09-01",
+    endRecur: "2026-12-31",
     editable: false,
     overlap: false,
   },
@@ -52,7 +37,8 @@ const events = [
 
 function Calendar() {
   const calendarRef = useRef<CalendarRef>(null);
-  const { selectedDate, goToDate, openEventModal } = useCalendarContext();
+  const { selectedDate, goToDate, openEventId, openSelection, closeEvent } =
+    useCalendar();
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -61,20 +47,23 @@ function Calendar() {
     calendarApi?.changeView("timeGridDay", selectedDate);
   }, [selectedDate]);
 
-  function handleSelectedDate(selectInfo: DateSelectInfo) {
-    const target = selectInfo.jsEvent?.target as HTMLElement | undefined;
-    const rect = target
-      ?.closest(".fc-timegrid-slot, .fc-daygrid-day")
-      ?.getBoundingClientRect();
+  function handleSelect(selectInfo: DateSelectInfo) {
+    const targetEl = selectInfo.jsEvent?.target as HTMLElement;
+    const cellEl = targetEl.closest('[role="button"]')!;
+    const rect = cellEl.getBoundingClientRect();
 
-    const position = rect
-      ? { x: rect.left, y: rect.top }
-      : {
-          x: selectInfo.jsEvent?.clientX ?? window.innerWidth / 2,
-          y: selectInfo.jsEvent?.clientY ?? window.innerHeight / 2,
-        };
+    const position = {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      left: rect.left,
+    };
 
-    openEventModal(
+    openSelection(
       {
         start: selectInfo.start,
         end: selectInfo.end,
@@ -82,8 +71,15 @@ function Calendar() {
       },
       position,
     );
+  }
 
-    selectInfo.view.calendar.unselect();
+  function handleEventClick(eventInfo: EventClickInfo) {
+    const position = {
+      x: eventInfo.jsEvent?.clientX as number,
+      y: eventInfo.jsEvent?.clientY as number,
+    };
+
+    openEventId(eventInfo.event.id, position);
   }
 
   function handleEventDrop(dropInfo: EventDropInfo) {
@@ -137,10 +133,10 @@ function Calendar() {
           // Adding new event
           selectable
           selectMirror
-          select={handleSelectedDate}
-          // unselect={() => setSelectedRange(null)}
+          select={handleSelect}
+          unselect={() => closeEvent()}
           editable
-          // eventClick={(eventInfo) => setSelectedEvent(eventInfo)}
+          eventClick={handleEventClick}
           eventDrop={handleEventDrop}
           eventResize={handleEventResize}
           dayMaxEvents

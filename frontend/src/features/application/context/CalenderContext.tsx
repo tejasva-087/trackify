@@ -12,24 +12,29 @@ export interface SelectionInfo {
   allDay: boolean;
 }
 
-export interface ModalPosition {
+export interface ClickPosition {
   x: number;
   y: number;
+  width: number;
+  height: number;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
 }
 
 interface CalendarContextValue {
   selectedDate: Date | null;
   goToDate: (date: Date | string) => void;
+  clickPosition: ClickPosition | null;
 
-  pendingSelection: SelectionInfo | null;
-  modalPosition: ModalPosition | null;
-  isEventModalOpen: boolean;
-  openEventModal: (selection: SelectionInfo, position: ModalPosition) => void;
-  closeEventModal: () => void;
+  selection: SelectionInfo | null;
+  openSelection: (selection: SelectionInfo, position: ClickPosition) => void;
 
-  // for edit flow later: which event id (if any) is being edited
-  editingEventId: string | null;
-  setEditingEventId: (id: string | null) => void;
+  eventId: string | null;
+  openEventId: (eventId: string, position: ClickPosition) => void;
+
+  closeEvent: () => void;
 }
 
 const CalendarContext = createContext<CalendarContextValue | undefined>(
@@ -38,46 +43,44 @@ const CalendarContext = createContext<CalendarContextValue | undefined>(
 
 function CalendarProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [pendingSelection, setPendingSelection] =
-    useState<SelectionInfo | null>(null);
-  const [modalPosition, setModalPosition] = useState<ModalPosition | null>(
+  const [selection, setSelection] = useState<SelectionInfo | null>(null);
+  const [eventId, setEventId] = useState<string | null>(null);
+  const [clickPosition, setClickPosition] = useState<ClickPosition | null>(
     null,
   );
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
   const goToDate = useCallback((date: Date | string) => {
     setSelectedDate(new Date(date));
   }, []);
 
-  const openEventModal = useCallback(
-    (selection: SelectionInfo, position: ModalPosition) => {
-      setPendingSelection(selection);
-      setModalPosition(position);
-      setIsEventModalOpen(true);
-    },
-    [],
-  );
+  const openEventId = (eventId: string, position: ClickPosition) => {
+    setEventId(eventId);
+    setClickPosition(position);
+  };
 
-  const closeEventModal = useCallback(() => {
-    setIsEventModalOpen(false);
-    setPendingSelection(null);
-    setModalPosition(null);
-    setEditingEventId(null);
-  }, []);
+  const openSelection = (selection: SelectionInfo, position: ClickPosition) => {
+    setEventId(null);
+    setSelection(selection);
+    setClickPosition(position);
+  };
+
+  const closeEvent = () => {
+    setSelection(null);
+    setClickPosition(null);
+    setEventId(null);
+  };
 
   return (
     <CalendarContext.Provider
       value={{
         selectedDate,
         goToDate,
-        pendingSelection,
-        modalPosition,
-        isEventModalOpen,
-        openEventModal,
-        closeEventModal,
-        editingEventId,
-        setEditingEventId,
+        selection,
+        eventId,
+        clickPosition,
+        openEventId,
+        openSelection,
+        closeEvent,
       }}
     >
       {children}
@@ -86,14 +89,14 @@ function CalendarProvider({ children }: { children: ReactNode }) {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function useCalendarContext() {
-  const ctx = useContext(CalendarContext);
-  if (!ctx) {
+export function useCalendar() {
+  const context = useContext(CalendarContext);
+  if (!context) {
     throw new Error(
       "useCalendarContext must be used within a CalendarProvider",
     );
   }
-  return ctx;
+  return context;
 }
 
 export default CalendarProvider;

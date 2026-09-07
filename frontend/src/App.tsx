@@ -19,7 +19,6 @@ import GuestGuard from "./features/authentication/GuestGuard";
 
 import AppLayout from "./ui/AppLayout";
 import Application from "./pages/Application";
-import CalendarProvider from "./features/application/context/CalenderContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,9 +51,7 @@ function App() {
           <Route
             element={
               // <AuthGuard>
-              <CalendarProvider>
-                <AppLayout />
-              </CalendarProvider>
+              <AppLayout />
               // </AuthGuard>
             }
           >
