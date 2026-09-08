@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
@@ -9,7 +9,6 @@ import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/monarch";
 
 import type {
-  CalendarRef,
   DateSelectInfo,
   EventClickInfo,
   EventDropInfo,
@@ -39,11 +38,9 @@ const events = [
 ];
 
 function Calendar() {
-  const calendarRef = useRef<CalendarRef>(null);
-
   const isMobile = useIsMobile();
-
-  const { selectedDate, goToDate, openSelection, closeEvent } = useCalendar();
+  const { selectedDate, goToDate, openSelection, closeEvent, calendarRef } =
+    useCalendar();
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -59,7 +56,7 @@ function Calendar() {
     if (!isMobile && currentType === "timeGridThreeDay") {
       calendarApi.changeView("timeGridWeek");
     }
-  }, [isMobile]);
+  }, [isMobile, calendarRef]);
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -70,7 +67,7 @@ function Calendar() {
 
     calendarApi.gotoDate(selectedDate);
     calendarApi.changeView("timeGridDay", selectedDate);
-  }, [selectedDate]);
+  }, [selectedDate, calendarRef]);
 
   function handleSelect(selectInfo: DateSelectInfo) {
     const target = selectInfo.jsEvent?.target;

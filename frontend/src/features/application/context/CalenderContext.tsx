@@ -1,9 +1,12 @@
+import type { CalendarRef } from "@fullcalendar/react";
 import {
   createContext,
   useContext,
   useState,
   useCallback,
   type ReactNode,
+  type RefObject,
+  useRef,
 } from "react";
 
 export interface SelectionInfo {
@@ -35,6 +38,8 @@ interface CalendarContextValue {
   openEventId: (eventId: string, position: ClickPosition) => void;
 
   closeEvent: () => void;
+
+  calendarRef: RefObject<CalendarRef | null>;
 }
 
 const CalendarContext = createContext<CalendarContextValue | undefined>(
@@ -42,6 +47,7 @@ const CalendarContext = createContext<CalendarContextValue | undefined>(
 );
 
 function CalendarProvider({ children }: { children: ReactNode }) {
+  const calendarRef = useRef<CalendarRef>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -73,6 +79,7 @@ function CalendarProvider({ children }: { children: ReactNode }) {
   return (
     <CalendarContext.Provider
       value={{
+        calendarRef,
         selectedDate,
         goToDate,
         selection,

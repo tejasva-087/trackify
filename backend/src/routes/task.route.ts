@@ -6,7 +6,7 @@ import {
   getEvent,
   getEvents,
   updateEvent,
-} from "../controllers/task.controller.js";
+} from "../controllers/event.controller.js";
 
 const router = express.Router();
 

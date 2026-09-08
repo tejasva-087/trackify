@@ -34,6 +34,9 @@ export const getEvents = catchAsync(
       .from(event)
       .where(eq(event.userId, userId));
 
+    if (!events)
+      return next(new AppError("There was an getting the event.", 400));
+
     res.status(200).json(events);
   },
 );

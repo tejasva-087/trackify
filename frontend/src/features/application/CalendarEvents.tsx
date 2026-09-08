@@ -1,17 +1,21 @@
 import { useCalendar } from "./context/CalenderContext";
 
 import AutoPositionModal from "../../ui/AutoPositionModal";
-import Input from "../../ui/Input";
+import EventForm from "./EventForm";
 
 function CalendarEvents() {
-  const { selection, clickPosition, closeEvent } = useCalendar();
+  const { selection, clickPosition, calendarRef } = useCalendar();
+
+  // Calendar.tsx
+  function handleCloseModal() {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.unselect();
+  }
 
   if (selection && clickPosition)
     return (
-      <AutoPositionModal position={clickPosition} onClose={closeEvent}>
-        <div className="h-100">
-          <Input />
-        </div>
+      <AutoPositionModal position={clickPosition} onClose={handleCloseModal}>
+        <EventForm label="Create a new event" />
       </AutoPositionModal>
     );
 
