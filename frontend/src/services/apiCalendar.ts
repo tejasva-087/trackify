@@ -22,24 +22,22 @@ const API_URL = import.meta.env.VITE_API_URL;
 console.log(API_URL);
 
 export interface CreateEventParams {
-  title: string;
-  description?: string;
-  start: Date | string;
-  duration?: string;
-  end?: Date | string;
-  startTime?: string;
-  endTime?: string;
+  title: string; //
+  description?: string; //
+  start: Date | string; //
+  duration?: string; //
+  end?: Date | string; //
+  startTime?: string; //
+  endTime?: string; //
   allDay?: boolean;
-  url?: string;
-  color?: string;
-  contrastColor?: string;
+  url?: string; //
+  color?: string; //
+  contrastColor?: string; //
   daysOfWeek?: string;
   startRecur?: string;
   endRecur?: string;
 
   editable?: boolean;
-  priority?: "high" | "medium" | "low";
-  status?: "scheduled" | "conflicted" | "resolved";
 }
 export async function createEvent(event: CreateEventParams) {
   const data = await fetch(`${API_URL}/event`, {

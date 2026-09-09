@@ -8,7 +8,7 @@ import morgan from "morgan";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 
-import eventRouters from "./routes/task.route.js";
+import eventRouters from "./routes/event.route.js";
 
 import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/error.controller.js";

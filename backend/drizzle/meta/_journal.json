@@ -15,6 +15,20 @@
       "when": 1788663251130,
       "tag": "0001_overrated_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788917452014,
+      "tag": "0002_elite_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788920642478,
+      "tag": "0003_fair_marvel_boy",
+      "breakpoints": true
     }
   ]
 }

@@ -1,125 +1,110 @@
-// type EventFormProps = {
-//   label: string;
-// };
+import { useForm, Controller } from "react-hook-form";
 
-import { useForm } from "react-hook-form";
-import Input from "../../ui/Input";
-import Label from "../../ui/Label";
-import Text from "../../ui/Text";
 import {
   // createEvent,
   type CreateEventParams,
 } from "../../services/apiCalendar";
 
-function EventForm() {
-  // reset
-  const { register, handleSubmit, formState } = useForm<CreateEventParams>();
+import Input from "../../ui/Input";
+import Label from "../../ui/Label";
+import Text from "../../ui/Text";
+import ColorPicker from "../../ui/ColorPicker";
+import { CALENDAR_COLORS, DEFAULT_EVENT_COLOR } from "../../styles/colors";
+
+type EventFormProps = {
+  label: string;
+  onSubmit: (params: CreateEventParams) => void;
+};
+
+function EventForm({ label }: EventFormProps) {
+  const { register, handleSubmit, control, formState } =
+    useForm<CreateEventParams>({
+      defaultValues: {
+        color: DEFAULT_EVENT_COLOR,
+      },
+    });
   const { errors } = formState;
 
-  function onSubmit() {
-    // createEvent(properties, {
+  function onSubmit(values: CreateEventParams) {
+    console.log(values);
+    // createEvent(values, {
     //   onSettled: () => reset(),
     // });
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="p-2 sm:p-8 space-y-2">
+      <Text type="h3" className="text-base">
+        {label}
+      </Text>
+
       {/* TITLE */}
       <div>
-        <Label id="title">Title</Label>
+        <Label id="title">Title*</Label>
         <Input
-          type="title"
+          type="text"
           placeholder="eg: Board meeting"
           id="title"
           {...register("title", {
             required: "Please provide the title to create the event.",
           })}
-          // disabled={isLoggingIn}
         />
         <Text className="text-xs text-danger!">
           {errors?.title?.message || ""}
         </Text>
       </div>
 
-      {/* Start */}
-      <div className="flex items-center gap-2">
-        <div>
-          <Label id="start">Start date</Label>
-          <Input
-            type="date"
-            id="start"
-            {...register("title", {
-              required: "Please provide the start date.",
-            })}
-            // disabled={isLoggingIn}
-          />
-          <Text className="text-xs text-danger!">
-            {errors?.start?.message || ""}
-          </Text>
-        </div>
-        <div className="w-full">
-          <Label id="startTime">Start time</Label>
-          <Input
-            type="time"
-            id="startTime"
-            {...register("title", {
-              required: "Please provide the star time.",
-            })}
-            // disabled={isLoggingIn}
-          />
-          <Text className="text-xs text-danger!">
-            {errors?.startTime?.message || ""}
-          </Text>
-        </div>
-      </div>
-
-      {/* End */}
-      <div className="flex items-center gap-2">
-        <div>
-          <Label id="end">End date</Label>
-          <Input
-            type="date"
-            id="end"
-            {...register("title", {
-              required: "Please provide the end date.",
-            })}
-            // disabled={isLoggingIn}
-          />
-          <Text className="text-xs text-danger!">
-            {errors?.end?.message || ""}
-          </Text>
-        </div>
-        <div className="w-full">
-          <Label id="end">End time</Label>
-          <Input
-            type="time"
-            id="end"
-            {...register("title", {
-              required: "Please provide the end time.",
-            })}
-            // disabled={isLoggingIn}
-          />
-          <Text className="text-xs text-danger!">
-            {errors?.end?.message || ""}
-          </Text>
-        </div>
-      </div>
-
       {/* DESCRIPTION */}
       <div className="flex items-start flex-col">
         <Label id="description">Description</Label>
-        <textarea
+        <Input
+          type="textarea"
           placeholder="eg: Board meeting"
           id="description"
           {...register("description", {
             required: "Please provide the description to create the event.",
           })}
-          // disabled={isLoggingIn}
+          className=""
         />
         <Text className="text-xs text-danger!">
           {errors?.description?.message || ""}
         </Text>
       </div>
+
+      {/* URL */}
+      <div>
+        <Label id="url">Link</Label>
+        <Input
+          type="text"
+          placeholder="eg: http://example.com"
+          id="url"
+          {...register("url")}
+        />
+        <Text className="text-xs text-danger!">
+          {errors?.title?.message || ""}
+        </Text>
+      </div>
+
+      {/* COLOR */}
+      <div className="flex flex-col gap-1.5">
+        <Label id="color">Color</Label>
+        <Controller
+          name="color"
+          control={control}
+          render={({ field }) => (
+            <ColorPicker
+              colors={CALENDAR_COLORS}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+        <Text className="text-xs text-danger!">
+          {errors?.color?.message || ""}
+        </Text>
+      </div>
+
+      {/* All day */}
     </form>
   );
 }

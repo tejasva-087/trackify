@@ -25,15 +25,16 @@ import "../../styles/themeOverrideCalender.css";
 
 const events = [
   {
-    id: "21",
-    title: "Yoga Class",
+    id: "10",
+    title: "High Priority Task",
     daysOfWeek: [1, 3, 5],
-    startTime: "07:00:00",
-    endTime: "08:00:00",
+    // startTime: "07:00:00",
+    // endTime: "08:00:00",
     startRecur: "2026-09-01",
-    endRecur: "2026-12-31",
-    editable: false,
-    overlap: false,
+    endRecur: "2026-09-30",
+    color: "#e63946",
+    contrastColor: "#ffffff",
+    allDay: true,
   },
 ];
 

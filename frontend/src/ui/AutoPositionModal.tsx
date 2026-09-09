@@ -26,7 +26,7 @@ type ModalProps = {
 };
 
 const GAP = 12; // space between the cell and the popover
-const MODAL_WIDTH = 360;
+const MODAL_WIDTH = 480;
 const VIEWPORT_PADDING = 12;
 const MOBILE_BREAKPOINT = 640; // keep in sync with Calendar.tsx
 
@@ -140,7 +140,7 @@ function Modal({ position, onClose, children }: ModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-3 top-3 z-10 flex items-center justify-center rounded-full text-black-secondary text-xl cursor-pointer"
+            className="absolute right-6 top-6 z-10 flex items-center justify-center rounded-full text-black-secondary text-xl cursor-pointer"
           >
             <XIcon />
           </button>
@@ -157,7 +157,7 @@ function Modal({ position, onClose, children }: ModalProps) {
       ref={modalRef}
       role="dialog"
       data-calendar-popover
-      className="fixed z-50 rounded-lg bg-white shadow-2xl ring-1 ring-black/10"
+      className="fixed z-50 rounded-xl bg-white shadow-2xl ring-1 ring-black-tertiary/10"
       style={{
         top: coords?.top ?? position.top,
         left: coords?.left ?? position.right + GAP,
@@ -169,9 +169,9 @@ function Modal({ position, onClose, children }: ModalProps) {
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-3 top-3 z-10 flex items-center justify-center rounded-full text-black-secondary text-xl cursor-pointer"
+        className="absolute right-8 top-8 z-10 flex items-center justify-center rounded-full text-black-secondary text-xl cursor-pointer"
       >
-        <XIcon />
+        <XIcon weight="bold" />
       </button>
       {children}
     </div>,

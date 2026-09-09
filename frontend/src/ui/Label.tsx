@@ -1,7 +1,9 @@
+import type { ReactNode } from "react";
+
 type labelProp = {
   id: string;
   className?: string;
-  children: string;
+  children: ReactNode;
 };
 
 function Label({ id, children, className = "" }: labelProp) {

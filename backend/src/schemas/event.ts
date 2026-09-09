@@ -2,7 +2,6 @@ import {
   boolean,
   date,
   integer,
-  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -10,13 +9,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./user.js";
 import { relations } from "drizzle-orm";
-
-export const priorityEnum = pgEnum("priority", ["high", "medium", "low"]);
-export const statusEnum = pgEnum("status", [
-  "scheduled",
-  "conflicted",
-  "resolved",
-]);
 
 export const event = pgTable("event", {
   userId: text("userId")
@@ -45,9 +37,6 @@ export const event = pgTable("event", {
   endTime: text("endTime"),
 
   editable: boolean(),
-
-  priority: priorityEnum("priority"),
-  status: statusEnum("status"),
 
   createdAt: timestamp("createdAt", { withTimezone: true })
     .defaultNow()

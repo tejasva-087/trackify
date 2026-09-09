@@ -1,15 +1,34 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
+import {
+  forwardRef,
+  type InputHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from "react";
 
-type InputProps = InputHTMLAttributes<HTMLInputElement>;
+type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+  type?: string;
+};
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
+const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
   ({ type = "text", placeholder = "", className = "", ...rest }, ref) => {
+    const sharedClassName = `block border w-full p-2 rounded-md border-white-tertiary disabled:bg-white-tertiary disabled:cursor-none ${className}`;
+
+    if (type === "textarea") {
+      return (
+        <textarea
+          ref={ref as React.Ref<HTMLTextAreaElement>}
+          placeholder={placeholder}
+          className={`${sharedClassName} overflow-scroll`}
+          {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
+      );
+    }
+
     return (
       <input
-        ref={ref}
+        ref={ref as React.Ref<HTMLInputElement>}
         type={type}
         placeholder={placeholder}
-        className={`block border w-full p-2 rounded-md border-white-tertiary disabled:bg-white-tertiary disabled:cursor-none ${className}`}
+        className={sharedClassName}
         {...rest}
       />
     );
