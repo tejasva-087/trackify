@@ -41,3 +41,11 @@
   --fc-monarch-border: #e6e6e6;
   --fc-monarch-strong-border: #f2f2f2;
 }
+
+.fc-monarch-Frw:hover {
+  background-color: var(--fc-event-color) !important;
+}
+
+.fc-monarch-Frw {
+  cursor: pointer;
+}

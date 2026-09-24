@@ -25,9 +25,10 @@ const GAP = 6;
 
 function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const { width, height } = useWindowSize();
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const [modalHeight, setModalHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
   const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
 
   function closeModal() {
@@ -35,11 +36,22 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
     onClose?.();
   }
 
+  // Track the content's real size directly, instead of re-measuring on an
+  // effect keyed to `children` (which changes every render regardless of
+  // whether the content actually resized, and lags a render behind).
   useLayoutEffect(() => {
-    if (modalRef.current) {
-      setModalHeight(modalRef.current.offsetHeight);
-    }
-  }, [children]);
+    const el = contentRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setContentHeight(entry.target.scrollHeight);
+    });
+    observer.observe(el);
+    setContentHeight(el.scrollHeight); // measure immediately, don't wait for the first callback
+
+    return () => observer.disconnect();
+  }, []);
 
   if (isMobile)
     return createPortal(
@@ -56,6 +68,7 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
           />
         </button>
         <div
+          ref={contentRef}
           className="overflow-y-scroll h-full"
           style={{ maxHeight: "100svh" }}
         >
@@ -64,6 +77,11 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
       </div>,
       document.body,
     );
+
+  // Cap to what's actually available in the viewport, not a flat 80vh,
+  // so the modal always gets its own scrollbar instead of running off-screen.
+  const maxAvailableHeight = Math.max(height - GAP * 2, 100);
+  const modalHeight = Math.min(contentHeight, maxAvailableHeight);
 
   const top =
     position.top + modalHeight + position.height > height
@@ -94,7 +112,13 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
           weight="bold"
         />
       </button>
-      <div className="overflow-y-scroll h-full">{children}</div>
+      <div
+        ref={contentRef}
+        className="overflow-y-scroll"
+        style={{ maxHeight: maxAvailableHeight }}
+      >
+        {children}
+      </div>
     </div>,
     document.body,
   );

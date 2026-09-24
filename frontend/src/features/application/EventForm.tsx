@@ -17,6 +17,7 @@ import DayOfWeekPicker from "../../ui/DayPicker";
 import Toggle from "../../ui/Toggle";
 import Button from "../../ui/Button";
 import type { UseMutateFunction } from "@tanstack/react-query";
+import { useCalendar } from "./context/CalenderContext";
 
 type EventFormValues = {
   start: string;
@@ -54,25 +55,33 @@ function EventForm({
   defaultValues,
   inProgress,
 }: EventFormProps) {
-  const { register, handleSubmit, control, watch, reset, formState } =
-    useForm<EventFormValues>({
-      defaultValues: {
-        color: DEFAULT_EVENT_COLOR,
-        title: "",
-        description: "",
-        url: "",
-        isRecurring: false,
-        daysOfWeek: [],
-        startRecur: "",
-        endRecur: "",
-        ...defaultValues,
-        allDay: defaultValues?.allDay ?? false,
-        start: toDateInputValue(defaultValues?.start),
-        end: toDateInputValue(defaultValues?.end),
-        startTime: toTimeInputValue(defaultValues?.start),
-        endTime: toTimeInputValue(defaultValues?.end),
-      },
-    });
+  const { calendarRef } = useCalendar();
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    reset,
+    getValues,
+    formState,
+  } = useForm<EventFormValues>({
+    defaultValues: {
+      color: DEFAULT_EVENT_COLOR,
+      title: "",
+      description: "",
+      url: "",
+      isRecurring: false,
+      daysOfWeek: [],
+      startRecur: "",
+      endRecur: "",
+      ...defaultValues,
+      allDay: defaultValues?.allDay ?? false,
+      start: toDateInputValue(defaultValues?.start),
+      end: toDateInputValue(defaultValues?.end),
+      startTime: toTimeInputValue(defaultValues?.start),
+      endTime: toTimeInputValue(defaultValues?.end),
+    },
+  });
   const { errors } = formState;
   const isAllDay = watch("allDay");
   const isRecurring = watch("isRecurring");
@@ -102,13 +111,18 @@ function EventForm({
       ...(values.isRecurring && {
         daysOfWeek: values.daysOfWeek,
         startRecur: values.startRecur,
-        endRecur: values.endRecur,
+        // Empty endRecur => recurrence has no end date (repeats forever)
+        endRecur: values.endRecur || undefined,
         startTime: values.allDay ? undefined : values.startTime,
         endTime: values.allDay ? undefined : values.endTime,
       }),
     };
     onFormSubmit(params, {
-      onSettled: () => reset(),
+      onSettled: () => {
+        reset();
+        const calendarApi = calendarRef.current?.getApi();
+        calendarApi?.unselect();
+      },
     });
   }
 
@@ -138,7 +152,7 @@ function EventForm({
       {isRecurring && (
         <div className="space-y-2 pl-1">
           <div className="flex flex-col gap-1.5">
-            <Label id="daysOfWeek">Repeat on</Label>
+            <Label id="daysOfWeek">Repeat on*</Label>
             <Controller
               name="daysOfWeek"
               control={control}
@@ -160,7 +174,7 @@ function EventForm({
 
           <div className="flex items-center gap-2">
             <div className="w-full">
-              <Label id="startRecur">Repeat from</Label>
+              <Label id="startRecur">Repeat from*</Label>
               <Input
                 type="date"
                 id="startRecur"
@@ -176,17 +190,24 @@ function EventForm({
               </Text>
             </div>
             <div className="w-full">
-              <Label id="endRecur">Repeat until</Label>
+              <Label id="endRecur">Repeat until (optional)</Label>
               <Input
                 type="date"
                 id="endRecur"
                 {...register("endRecur", {
-                  validate: (v) =>
-                    !isRecurring ||
-                    !!v ||
-                    "Pick an end date for the recurrence",
+                  validate: (v) => {
+                    if (!isRecurring || !v) return true; // blank = repeats forever
+                    const startRecur = getValues("startRecur");
+                    if (startRecur && v < startRecur) {
+                      return "Repeat until date can't be before the repeat from date";
+                    }
+                    return true;
+                  },
                 })}
               />
+              <Text className="text-xs text-gray-400">
+                Leave blank to repeat forever
+              </Text>
               <Text className="text-xs text-danger!">
                 {errors?.endRecur?.message || ""}
               </Text>
@@ -217,6 +238,13 @@ function EventForm({
             id="end"
             {...register("end", {
               required: "Please provide the ending date",
+              validate: (value) => {
+                const start = getValues("start");
+                if (start && value < start) {
+                  return "End date can't be before the start date";
+                }
+                return true;
+              },
             })}
           />
           <Text className="text-xs text-danger!">
@@ -248,6 +276,22 @@ function EventForm({
               id="endTime"
               {...register("endTime", {
                 required: "Please provide the ending time.",
+                validate: (value) => {
+                  const start = getValues("start");
+                  const end = getValues("end");
+                  const startTime = getValues("startTime");
+                  // Only enforce time ordering when it's the same calendar day
+                  if (
+                    start &&
+                    end &&
+                    start === end &&
+                    startTime &&
+                    value <= startTime
+                  ) {
+                    return "End time must be after the start time";
+                  }
+                  return true;
+                },
               })}
             />
             <Text className="text-xs text-danger!">

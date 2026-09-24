@@ -23,7 +23,7 @@ import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../../styles/themeOverrideCalender.css";
 import { useWindowSize } from "../../hooks/getWindowSize";
 import useEvent from "./hooks/useEvent";
-import LoadingSpinner from "../../ui/loadingSpinner";
+import Spinner from "../../ui/Spinner";
 
 function Calendar() {
   const { width } = useWindowSize();
@@ -93,7 +93,28 @@ function Calendar() {
   }
 
   function handleEventClick(eventInfo: EventClickInfo) {
-    console.log("Event clicked:", eventInfo.event);
+    const target = eventInfo.jsEvent?.target;
+
+    if (!(target instanceof HTMLElement)) return;
+
+    const cellEl = target.closest('[role="button"]');
+
+    if (!cellEl) return;
+
+    const rect = cellEl.getBoundingClientRect();
+
+    const position = {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      left: rect.left,
+    };
+
+    console.log(position);
   }
 
   function handleEventDrop(dropInfo: EventDropInfo) {
@@ -108,7 +129,12 @@ function Calendar() {
     console.log("End delta:", resizeInfo.endDelta);
   }
 
-  if (isLoadingEvents) return <LoadingSpinner />;
+  if (isLoadingEvents)
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   return (
     <div className="h-full w-full min-h-0">
