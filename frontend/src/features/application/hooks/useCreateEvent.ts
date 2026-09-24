@@ -25,3 +25,26 @@ function useCreateEvent() {
 }
 
 export default useCreateEvent;
+
+// const data = {
+//   json: {
+//     userId: "vGLn0kWg6OC2Ncx1GI0IK8xRWRPLONxN",
+//     id: "76189c73-6d1c-4470-919b-778e60d726ed",
+//     title: "Hello world",
+//     description: "Recurring event :)",
+//     start: "2026-09-17 02:00:00+00",
+//     end: "2026-09-17 08:30:00+00",
+//     allDay: false,
+//     url: "",
+//     color: "#9d7a6a",
+//     contrastColor: null,
+//     daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+//     startRecur: "2026-09-17",
+//     endRecur: "2026-09-30",
+//     startTime: null,
+//     endTime: null,
+//     editable: null,
+//     createdAt: "2026-09-17T00:04:28.976Z",
+//     updatedAt: "2026-09-17T00:04:28.976Z",
+//   },
+// };

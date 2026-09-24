@@ -1,25 +1,4 @@
-// export type EventParams = {
-//   id: string;
-//   title: string;
-//   description: string;
-//   start: Date | string;
-//   end: Date | string;
-//   allDay: boolean;
-//   url: string;
-//   color: string;
-//   contrastColor: string;
-//   daysOfWeek: string;
-//   startRecur: string;
-//   endRecur: string;
-//   startTime: string;
-//   endTime: string;
-//   editable: string;
-//   priority: string;
-// };
-
 const API_URL = import.meta.env.VITE_API_URL;
-
-console.log(API_URL);
 
 export interface CreateEventParams {
   title: string; //
@@ -33,20 +12,58 @@ export interface CreateEventParams {
   url?: string; //
   color?: string; //
   contrastColor?: string; //
-  daysOfWeek?: string;
+  daysOfWeek?: number[];
   startRecur?: string;
   endRecur?: string;
 
   editable?: boolean;
 }
-export async function createEvent(event: CreateEventParams) {
-  const data = await fetch(`${API_URL}/event`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(event),
-  });
 
-  console.log(data);
+export async function getEvents() {
+  try {
+    const res = await fetch(`${API_URL}/event`, {
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch events: ${res.status} ${res.statusText}`,
+      );
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(
+      "Error fetching events:",
+      error instanceof Error ? error.message : error,
+    );
+    throw error;
+  }
+}
+
+export async function createEvent(event: CreateEventParams) {
+  try {
+    const res = await fetch(`${API_URL}/event`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(event),
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Failed to create event: ${res.status} ${res.statusText}`,
+      );
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(
+      "Error creating event:",
+      error instanceof Error ? error.message : error,
+    );
+    throw error;
+  }
 }

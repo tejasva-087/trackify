@@ -17,7 +17,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
         <textarea
           ref={ref as React.Ref<HTMLTextAreaElement>}
           placeholder={placeholder}
-          className={`${sharedClassName} overflow-scroll`}
+          className={`${sharedClassName}`}
           {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
         />
       );

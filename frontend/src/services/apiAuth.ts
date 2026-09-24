@@ -102,3 +102,31 @@ export async function getSession() {
 
   return data;
 }
+
+export async function signInWithGoogle() {
+  const { data, error } = await authClient.signIn.social({
+    provider: "google",
+    callbackURL: "http://localhost:5173/application",
+  });
+
+  if (error) {
+    console.error(error);
+    throw new Error(error.message ?? "Google sign in failed");
+  }
+
+  return data;
+}
+
+export async function signInWithGithub() {
+  const { data, error } = await authClient.signIn.social({
+    provider: "github",
+    callbackURL: "http://localhost:5173/application",
+  });
+
+  if (error) {
+    console.error(error);
+    throw new Error(error.message ?? "GitHub sign in failed");
+  }
+
+  return data;
+}

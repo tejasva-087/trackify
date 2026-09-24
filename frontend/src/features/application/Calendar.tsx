@@ -16,32 +16,22 @@ import type {
 } from "@fullcalendar/react";
 
 import { useCalendar } from "./context/CalenderContext";
-import { useIsMobile } from "../../hooks/useIsMobile";
 
 import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../../styles/themeOverrideCalender.css";
-
-const events = [
-  {
-    id: "10",
-    title: "High Priority Task",
-    daysOfWeek: [1, 3, 5],
-    // startTime: "07:00:00",
-    // endTime: "08:00:00",
-    startRecur: "2026-09-01",
-    endRecur: "2026-09-30",
-    color: "#e63946",
-    contrastColor: "#ffffff",
-    allDay: true,
-  },
-];
+import { useWindowSize } from "../../hooks/getWindowSize";
+import useEvent from "./hooks/useEvent";
+import LoadingSpinner from "../../ui/loadingSpinner";
 
 function Calendar() {
-  const isMobile = useIsMobile();
+  const { width } = useWindowSize();
+  const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
+
   const { selectedDate, goToDate, openSelection, closeEvent, calendarRef } =
     useCalendar();
+  const { events, isLoadingEvents } = useEvent();
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -117,6 +107,8 @@ function Calendar() {
     console.log("Old event:", resizeInfo.oldEvent);
     console.log("End delta:", resizeInfo.endDelta);
   }
+
+  if (isLoadingEvents) return <LoadingSpinner />;
 
   return (
     <div className="h-full w-full min-h-0">

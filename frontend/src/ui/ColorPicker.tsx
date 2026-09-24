@@ -24,11 +24,11 @@ function ColorPicker({
       role="radiogroup"
       aria-label="Event color"
     >
-      {colors.map((color) => {
+      {colors.map((color, index) => {
         const isSelected = value === color.value;
         return (
           <label
-            key={color.value}
+            key={`${color.name}-${index}`}
             htmlFor={`${name}-${color.value}`}
             title={color.name}
             className="cursor-pointer"

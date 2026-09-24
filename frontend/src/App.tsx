@@ -34,25 +34,25 @@ function App() {
       <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
       <BrowserRouter>
         <Routes>
-          {/* <Route element={<GuestGuard />}> */}
-          {/* STATIC PAGES */}
-          <Route path="/" element={<Landing />} />
+          <Route element={<GuestGuard />}>
+            {/* STATIC PAGES */}
+            <Route path="/" element={<Landing />} />
 
-          {/* AUTH PAGES */}
-          <Route element={<AuthLayout />}>
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/log-in" element={<LogIn />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            {/* AUTH PAGES */}
+            <Route element={<AuthLayout />}>
+              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/log-in" element={<LogIn />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+            </Route>
           </Route>
-          {/* </Route> */}
 
           {/* APPLICATION PAGES */}
           <Route
             element={
-              // <AuthGuard>
-              <AppLayout />
-              // </AuthGuard>
+              <AuthGuard>
+                <AppLayout />
+              </AuthGuard>
             }
           >
             <Route path="/email-verification" element={<EmailVerification />} />

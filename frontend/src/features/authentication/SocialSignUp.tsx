@@ -1,22 +1,35 @@
 import { GithubLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import Button from "../../ui/Button";
+import { signInWithGithub, signInWithGoogle } from "../../services/apiAuth";
+import useSocialSignUp from "./hooks/useSocialSignUp";
 
 function SocialSignUp() {
+  const { socialSignUp: googleSignUp, isSigningUp: isGoogleSigningUp } =
+    useSocialSignUp(signInWithGoogle);
+  const { socialSignUp: githubSignUp, isSigningUp: isGithubSigningUp } =
+    useSocialSignUp(signInWithGithub);
+
+  const isSigningUp = isGoogleSigningUp || isGithubSigningUp;
+
   return (
     <div className="w-full space-y-2">
-      <Button>
+      <Button onClick={() => googleSignUp()} disabled={isSigningUp}>
         <GoogleLogoIcon
           className="text-2xl text-black-tertiary"
           weight="light"
         />
-        <span>Continue with google</span>
+        <span>
+          {isGoogleSigningUp ? "Redirecting..." : "Continue with google"}
+        </span>
       </Button>
-      <Button>
+      <Button onClick={() => githubSignUp()} disabled={isSigningUp}>
         <GithubLogoIcon
           className="text-2xl text-black-tertiary"
           weight="light"
         />
-        <span>Continue with github</span>
+        <span>
+          {isGithubSigningUp ? "Redirecting..." : "Continue with github"}
+        </span>
       </Button>
     </div>
   );

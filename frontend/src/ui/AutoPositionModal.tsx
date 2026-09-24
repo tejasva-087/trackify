@@ -1,11 +1,6 @@
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useWindowSize } from "../hooks/getWindowSize";
 import { XIcon } from "@phosphor-icons/react";
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
 import { createPortal } from "react-dom";
 
 type Position = {
@@ -19,164 +14,90 @@ type Position = {
   left: number;
 };
 
-type ModalProps = {
-  position: Position;
-  onClose: () => void;
+type AutoPositionModal = {
   children: ReactNode;
+  position: Position;
+  onClose?: () => void;
 };
 
-const GAP = 12; // space between the cell and the popover
-const MODAL_WIDTH = 480;
-const VIEWPORT_PADDING = 12;
-const MOBILE_BREAKPOINT = 640; // keep in sync with Calendar.tsx
+const MAX_MODAL_WIDTH = 448;
+const GAP = 6;
 
-function useIsMobile(breakpoint = MOBILE_BREAKPOINT) {
-  const [isMobile, setIsMobile] = useState(
-    () => window.innerWidth < breakpoint,
-  );
-
-  useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [breakpoint]);
-
-  return isMobile;
-}
-
-function Modal({ position, onClose, children }: ModalProps) {
-  const isMobile = useIsMobile();
+function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
+  const { width, height } = useWindowSize();
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [modalHeight, setModalHeight] = useState(0);
+  const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
 
-  // Desktop: anchored popover positioning (right of cell, flip left, clamp)
+  function closeModal() {
+    setIsModalOpen(true);
+    onClose?.();
+  }
+
   useLayoutEffect(() => {
-    if (isMobile) return; // bottom sheet doesn't need this
-    const modalEl = modalRef.current;
-    if (!modalEl) return;
-
-    const modalHeight = modalEl.offsetHeight;
-    const modalWidth = modalEl.offsetWidth || MODAL_WIDTH;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    let left = position.right + GAP;
-    if (left + modalWidth + VIEWPORT_PADDING > viewportWidth) {
-      left = position.left - modalWidth - GAP;
-      if (left < VIEWPORT_PADDING) {
-        left = Math.max(
-          VIEWPORT_PADDING,
-          viewportWidth - modalWidth - VIEWPORT_PADDING,
-        );
-      }
+    if (modalRef.current) {
+      setModalHeight(modalRef.current.offsetHeight);
     }
+  }, [children]);
 
-    let top = position.top;
-    if (top + modalHeight + VIEWPORT_PADDING > viewportHeight) {
-      top = viewportHeight - modalHeight - VIEWPORT_PADDING;
-    }
-    if (top < VIEWPORT_PADDING) top = VIEWPORT_PADDING;
-
-    setCoords({ top, left });
-  }, [position, isMobile]);
-
-  // Close on click outside the modal (ignored by FullCalendar via
-  // unselectCancel="[data-calendar-popover]" on the calendar itself)
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    }
-    // Defer so the click that opened the modal doesn't immediately close it
-    const id = requestAnimationFrame(() => {
-      document.addEventListener("mousedown", handleClick);
-    });
-    return () => {
-      cancelAnimationFrame(id);
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, [onClose]);
-
-  // Close on Escape
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [onClose]);
-
-  // Close on scroll — desktop only, since the anchor position goes stale.
-  // A bottom sheet is expected to persist while its own content scrolls.
-  useEffect(() => {
-    if (isMobile) return;
-    function handleScroll() {
-      onClose();
-    }
-    window.addEventListener("scroll", handleScroll, true);
-    return () => window.removeEventListener("scroll", handleScroll, true);
-  }, [onClose, isMobile]);
-
-  if (isMobile) {
+  if (isMobile)
     return createPortal(
-      <div className="fixed inset-0 z-50 flex items-end">
+      <div
+        className="overflow-hidden absolute bottom-0 left-0 w-screen h-fit z-50 bg-white-primary border border-white-tertiary rounded-xl"
+        ref={modalRef}
+        role="dialog"
+        data-calendar-popover
+      >
+        <button onClick={closeModal} className="absolute top-5 right-5">
+          <XIcon
+            className="cursor-pointer text-black-tertiary w-5 h-5"
+            weight="bold"
+          />
+        </button>
         <div
-          className="absolute inset-0 bg-black-tertiary/30"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-        <div
-          ref={modalRef}
-          role="dialog"
-          data-calendar-popover
-          className="relative z-10 w-full rounded-t-2xl bg-white-primary shadow-2xl max-h-[85vh] overflow-y-auto"
+          className="overflow-y-scroll h-full"
+          style={{ maxHeight: "100svh" }}
         >
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="absolute right-6 top-6 z-10 flex items-center justify-center rounded-full text-black-secondary text-xl cursor-pointer"
-          >
-            <XIcon />
-          </button>
-
-          <div className="p-4">{children}</div>
+          {children}
         </div>
       </div>,
       document.body,
     );
-  }
+
+  const top =
+    position.top + modalHeight + position.height > height
+      ? Math.max(GAP, position.bottom - modalHeight)
+      : position.top;
+
+  const left =
+    position.left + MAX_MODAL_WIDTH + position.width > width
+      ? Math.max(GAP, position.left - MAX_MODAL_WIDTH - GAP)
+      : position.right + GAP;
 
   return createPortal(
     <div
+      className="overflow-hidden absolute z-50 h-fit bg-white-primary border border-white-tertiary rounded-xl shadow-xl"
       ref={modalRef}
       role="dialog"
       data-calendar-popover
-      className="fixed z-50 rounded-xl bg-white shadow-2xl ring-1 ring-black-tertiary/10"
       style={{
-        top: coords?.top ?? position.top,
-        left: coords?.left ?? position.right + GAP,
-        width: MODAL_WIDTH,
-        visibility: coords ? "visible" : "hidden",
+        maxWidth: MAX_MODAL_WIDTH,
+        top,
+        left,
+        display: isModalOpen ? "block" : "none",
       }}
     >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close"
-        className="absolute right-8 top-8 z-10 flex items-center justify-center rounded-full text-black-secondary text-xl cursor-pointer"
-      >
-        <XIcon weight="bold" />
+      <button onClick={closeModal} className="absolute top-5 right-5">
+        <XIcon
+          className="cursor-pointer text-black-tertiary w-5 h-5"
+          weight="bold"
+        />
       </button>
-      {children}
+      <div className="overflow-y-scroll h-full">{children}</div>
     </div>,
     document.body,
   );
 }
 
-export default Modal;
+export default AutoPositionModal;
