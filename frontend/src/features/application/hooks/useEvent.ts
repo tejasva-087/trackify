@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { getEvents } from "../../../services/apiCalendar";
+import { getEvent } from "../../../services/apiCalendar";
 
-function useEvent() {
-  const { data: events, isPending: isLoadingEvents } = useQuery({
+function useEvent(id: string) {
+  const { data: event, isPending: isLoadingEvent } = useQuery({
     queryKey: ["event"],
-    queryFn: getEvents,
+    queryFn: () => getEvent(id),
     retry: 1,
     refetchOnWindowFocus: false,
   });
 
-  return { events, isLoadingEvents };
+  return { event, isLoadingEvent };
 }
 
 export default useEvent;

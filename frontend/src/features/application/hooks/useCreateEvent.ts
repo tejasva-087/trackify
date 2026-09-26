@@ -12,7 +12,7 @@ function useCreateEvent() {
   } = useMutation({
     mutationFn: createEventApi,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Created event successful!");
     },
     onError: (error) => {

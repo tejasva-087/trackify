@@ -67,3 +67,25 @@ export async function createEvent(event: CreateEventParams) {
     throw error;
   }
 }
+
+export async function getEvent(id: string) {
+  try {
+    const res = await fetch(`${API_URL}/event/${id}`, {
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch events: ${res.status} ${res.statusText}`,
+      );
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(
+      "Error fetching events:",
+      error instanceof Error ? error.message : error,
+    );
+    throw error;
+  }
+}

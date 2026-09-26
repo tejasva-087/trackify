@@ -22,16 +22,22 @@ import "@fullcalendar/react/themes/monarch/theme.css";
 import "@fullcalendar/react/themes/monarch/palettes/blue.css";
 import "../../styles/themeOverrideCalender.css";
 import { useWindowSize } from "../../hooks/getWindowSize";
-import useEvent from "./hooks/useEvent";
+import useEvents from "./hooks/useEvents";
 import Spinner from "../../ui/Spinner";
 
 function Calendar() {
   const { width } = useWindowSize();
   const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
 
-  const { selectedDate, goToDate, openSelection, closeEvent, calendarRef } =
-    useCalendar();
-  const { events, isLoadingEvents } = useEvent();
+  const {
+    selectedDate,
+    goToDate,
+    openSelection,
+    closeEvent,
+    calendarRef,
+    openEventId,
+  } = useCalendar();
+  const { events, isLoadingEvents } = useEvents();
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -114,7 +120,7 @@ function Calendar() {
       left: rect.left,
     };
 
-    console.log(position);
+    openEventId(eventInfo.event.id, position);
   }
 
   function handleEventDrop(dropInfo: EventDropInfo) {

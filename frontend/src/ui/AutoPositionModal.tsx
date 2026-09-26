@@ -100,7 +100,7 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
       role="dialog"
       data-calendar-popover
       style={{
-        maxWidth: MAX_MODAL_WIDTH,
+        width: MAX_MODAL_WIDTH,
         top,
         left,
         display: isModalOpen ? "block" : "none",

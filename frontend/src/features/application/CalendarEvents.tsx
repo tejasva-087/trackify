@@ -3,19 +3,35 @@ import { useCalendar } from "./context/CalenderContext";
 import AutoPositionModal from "../../ui/AutoPositionModal";
 import EventForm from "./EventForm";
 import useCreateEvent from "./hooks/useCreateEvent";
+import EventCard from "./EventCard";
 
 function CalendarEvents() {
-  const { selection, clickPosition, calendarRef } = useCalendar();
+  const { eventId, selection, clickPosition, calendarRef, closeEvent } =
+    useCalendar();
   const { createEvent, isCreatingEvent } = useCreateEvent();
 
-  function handleCloseModal() {
+  function handleCloseSelection() {
     const calendarApi = calendarRef.current?.getApi();
     calendarApi?.unselect();
   }
 
+  function handleCloseEvent() {
+    closeEvent();
+  }
+
+  if (eventId && clickPosition)
+    return (
+      <AutoPositionModal position={clickPosition} onClose={handleCloseEvent}>
+        <EventCard id={eventId} />
+      </AutoPositionModal>
+    );
+
   if (selection && clickPosition)
     return (
-      <AutoPositionModal position={clickPosition} onClose={handleCloseModal}>
+      <AutoPositionModal
+        position={clickPosition}
+        onClose={handleCloseSelection}
+      >
         <EventForm
           label="New Event"
           defaultValues={selection}
