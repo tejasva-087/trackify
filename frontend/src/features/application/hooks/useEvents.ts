@@ -8,7 +8,6 @@ function useEvents() {
     retry: 1,
     refetchOnWindowFocus: false,
   });
-
   return { events, isLoadingEvents };
 }
 

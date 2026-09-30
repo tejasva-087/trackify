@@ -24,10 +24,9 @@ export const event = pgTable("event", {
   end: timestamp("end", { withTimezone: true, mode: "string" }),
   allDay: boolean("allDay").default(false),
 
-  url: text("url"),
+  link: text("link"),
 
   color: text("color"),
-  contrastColor: text("contrastColor"),
 
   daysOfWeek: integer("daysOfWeek").array(),
   startRecur: date("startRecur"),

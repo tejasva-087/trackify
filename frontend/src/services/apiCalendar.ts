@@ -9,7 +9,7 @@ export interface CreateEventParams {
   startTime?: string; //
   endTime?: string; //
   allDay?: boolean;
-  url?: string; //
+  link?: string; //
   color?: string; //
   contrastColor?: string; //
   daysOfWeek?: number[];

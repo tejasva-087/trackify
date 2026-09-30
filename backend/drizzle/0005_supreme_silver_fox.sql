@@ -1,0 +1,1 @@
+ALTER TABLE "event" RENAME COLUMN "url" TO "link";

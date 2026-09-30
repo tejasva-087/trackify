@@ -114,7 +114,7 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
       </button>
       <div
         ref={contentRef}
-        className="overflow-y-scroll"
+        className="overflow-y-auto"
         style={{ maxHeight: maxAvailableHeight }}
       >
         {children}

@@ -42,8 +42,13 @@
   --fc-monarch-strong-border: #f2f2f2;
 }
 
+.fc-monarch-Frw {
+  color: #fff;
+}
+
 .fc-monarch-Frw:hover {
   background-color: var(--fc-event-color) !important;
+  color: #fff;
 }
 
 .fc-monarch-Frw {

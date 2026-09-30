@@ -26,7 +26,7 @@ type EventFormValues = {
   endTime: string;
   title: string;
   description?: string;
-  url?: string;
+  link?: string;
   color: string;
   allDay: boolean;
   isRecurring: boolean;
@@ -69,7 +69,7 @@ function EventForm({
       color: DEFAULT_EVENT_COLOR,
       title: "",
       description: "",
-      url: "",
+      link: "",
       isRecurring: false,
       daysOfWeek: [],
       startRecur: "",
@@ -103,7 +103,7 @@ function EventForm({
     const params: CreateEventParams = {
       title: values.title,
       description: values.description,
-      url: values.url,
+      link: values.link,
       color: values.color,
       allDay: values.allDay,
       start: combineDateTime(values.start, values.startTime, values.allDay),
@@ -332,15 +332,15 @@ function EventForm({
 
       {/* URL */}
       <div>
-        <Label id="url">Link</Label>
+        <Label id="link">Link</Label>
         <Input
           type="text"
           placeholder="eg: http://example.com"
-          id="url"
-          {...register("url")}
+          id="link"
+          {...register("link")}
         />
         <Text className="text-xs text-danger!">
-          {errors?.url?.message || ""}
+          {errors?.link?.message || ""}
         </Text>
       </div>
 

@@ -99,6 +99,7 @@ function Calendar() {
   }
 
   function handleEventClick(eventInfo: EventClickInfo) {
+    eventInfo.jsEvent?.preventDefault();
     const target = eventInfo.jsEvent?.target;
 
     if (!(target instanceof HTMLElement)) return;
@@ -189,6 +190,7 @@ function Calendar() {
           if (arg.view.type === "dayGridMonth") {
             goToDate(arg.date);
           }
+          closeEvent();
         }}
         /*
          * Selecting a time range
@@ -207,6 +209,7 @@ function Calendar() {
         eventResize={handleEventResize}
         dayMaxEvents
         events={events}
+        datesSet={() => closeEvent()}
       />
     </div>
   );

@@ -19,12 +19,13 @@ function CalendarEvents() {
     closeEvent();
   }
 
-  if (eventId && clickPosition)
+  if (eventId && clickPosition) {
     return (
       <AutoPositionModal position={clickPosition} onClose={handleCloseEvent}>
         <EventCard id={eventId} />
       </AutoPositionModal>
     );
+  }
 
   if (selection && clickPosition)
     return (
