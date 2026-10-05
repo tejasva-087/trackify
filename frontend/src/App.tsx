@@ -57,6 +57,7 @@ function App() {
           >
             <Route path="/email-verification" element={<EmailVerification />} />
             <Route path="/application" element={<Application />} />
+            <Route path="/user" element={<p>USER</p>} />
           </Route>
 
           {/* CATCH-ALL */}

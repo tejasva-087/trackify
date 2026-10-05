@@ -108,7 +108,6 @@ function buildFormValues(source?: EventFormSource): EventFormValues {
 
 function EventForm({
   onFormSubmit,
-  onDelete,
   label,
   submitLabel = "Save",
   defaultValues,
@@ -402,15 +401,6 @@ function EventForm({
 
       {/* SUBMIT */}
       <div className="flex items-center justify-between pt-2">
-        {onDelete && (
-          <button
-            type="button"
-            onClick={onDelete}
-            className="text-danger text-sm"
-          >
-            Delete
-          </button>
-        )}
         <Button type="primary" disabled={inProgress}>
           {submitLabel}
         </Button>

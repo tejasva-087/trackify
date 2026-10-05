@@ -6,6 +6,15 @@ export interface SignUpParams {
   password: string;
   image?: string;
 }
+export async function logout() {
+  const { error } = await authClient.signOut();
+
+  if (error) {
+    console.error(error);
+    throw new Error(error.message ?? "Log out failed");
+  }
+}
+
 export async function signUp({ name, email, password, image }: SignUpParams) {
   const { data, error } = await authClient.signUp.email({
     name,
