@@ -8,12 +8,7 @@ import multimonthPlugin from "@fullcalendar/react/multimonth";
 import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/monarch";
 
-import type {
-  DateSelectInfo,
-  EventClickInfo,
-  EventDropInfo,
-  EventResizeDoneInfo,
-} from "@fullcalendar/react";
+import type { DateSelectInfo, EventClickInfo } from "@fullcalendar/react";
 
 import { useCalendar } from "./context/CalenderContext";
 
@@ -67,6 +62,7 @@ function Calendar() {
   }, [selectedDate, calendarRef]);
 
   function handleSelect(selectInfo: DateSelectInfo) {
+    console.log("click");
     const target = selectInfo.jsEvent?.target;
 
     if (!(target instanceof HTMLElement)) return;
@@ -124,18 +120,6 @@ function Calendar() {
     openEventId(eventInfo.event.id, position);
   }
 
-  function handleEventDrop(dropInfo: EventDropInfo) {
-    console.log("Event dropped:", dropInfo.event);
-    console.log("Old event:", dropInfo.oldEvent);
-    console.log("Delta:", dropInfo.delta);
-  }
-
-  function handleEventResize(resizeInfo: EventResizeDoneInfo) {
-    console.log("Event resized:", resizeInfo.event);
-    console.log("Old event:", resizeInfo.oldEvent);
-    console.log("End delta:", resizeInfo.endDelta);
-  }
-
   if (isLoadingEvents)
     return (
       <div className="h-screen w-screen flex items-center justify-center">
@@ -189,8 +173,8 @@ function Calendar() {
         dateClick={(arg) => {
           if (arg.view.type === "dayGridMonth") {
             goToDate(arg.date);
+            closeEvent();
           }
-          closeEvent();
         }}
         /*
          * Selecting a time range
@@ -205,8 +189,7 @@ function Calendar() {
          */
         editable
         eventClick={handleEventClick}
-        eventDrop={handleEventDrop}
-        eventResize={handleEventResize}
+        eventDrop={closeEvent}
         dayMaxEvents
         events={events}
         datesSet={() => closeEvent()}

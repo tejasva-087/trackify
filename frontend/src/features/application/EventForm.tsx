@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 
 import { type CreateEventParams } from "../../services/apiCalendar";
@@ -16,8 +15,11 @@ import {
 import DayOfWeekPicker from "../../ui/DayPicker";
 import Toggle from "../../ui/Toggle";
 import Button from "../../ui/Button";
-import type { UseMutateFunction } from "@tanstack/react-query";
-import { useCalendar } from "./context/CalenderContext";
+import {
+  useCalendar,
+  type CalendarEvent,
+  type SelectionInfo,
+} from "./context/CalenderContext";
 
 type EventFormValues = {
   start: string;
@@ -35,17 +37,74 @@ type EventFormValues = {
   endRecur: string;
 };
 
+export type EventFormSource = SelectionInfo | CalendarEvent;
+export type EventSubmitParams = CreateEventParams & { id?: string };
+
 type EventFormProps = {
   label: string;
   submitLabel?: string;
-  defaultValues?: Partial<Omit<EventFormValues, "start" | "end">> & {
-    start?: string | Date;
-    end?: string | Date;
-  };
-  onFormSubmit: UseMutateFunction<unknown, Error, CreateEventParams>;
+  defaultValues?: EventFormSource;
+  onFormSubmit: (
+    params: EventSubmitParams,
+    options?: { onSettled?: () => void },
+  ) => void;
   onDelete?: () => void;
   inProgress: boolean;
 };
+
+function isCalendarEvent(source: EventFormSource): source is CalendarEvent {
+  return "id" in source;
+}
+
+function buildFormValues(source?: EventFormSource): EventFormValues {
+  const base: EventFormValues = {
+    title: "",
+    description: "",
+    link: "",
+    color: DEFAULT_EVENT_COLOR,
+    allDay: false,
+    isRecurring: false,
+    daysOfWeek: [],
+    startRecur: "",
+    endRecur: "",
+    start: "",
+    end: "",
+    startTime: "",
+    endTime: "",
+  };
+
+  if (!source) return base;
+
+  const common: EventFormValues = {
+    ...base,
+    allDay: source.allDay ?? false,
+    start: toDateInputValue(source.start),
+    end: toDateInputValue(source.end),
+    startTime: toTimeInputValue(source.start),
+    endTime: toTimeInputValue(source.end),
+  };
+
+  // New selection: only dates/times
+  if (!isCalendarEvent(source)) return common;
+
+  // Existing event: normalize nulls
+  const isRecurring = !!source.daysOfWeek?.length;
+
+  return {
+    ...common,
+    title: source.title,
+    description: source.description ?? "",
+    link: source.link ?? "",
+    color: source.color ?? DEFAULT_EVENT_COLOR,
+    isRecurring,
+    daysOfWeek: source.daysOfWeek ?? [],
+    startRecur: source.startRecur ? toDateInputValue(source.startRecur) : "",
+    endRecur: source.endRecur ? toDateInputValue(source.endRecur) : "",
+    // recurring events keep their time in startTime/endTime
+    startTime: source.startTime ?? common.startTime,
+    endTime: source.endTime ?? common.endTime,
+  };
+}
 
 function EventForm({
   onFormSubmit,
@@ -55,7 +114,8 @@ function EventForm({
   defaultValues,
   inProgress,
 }: EventFormProps) {
-  const { calendarRef } = useCalendar();
+  const { calendarRef, closeEvent } = useCalendar();
+
   const {
     register,
     handleSubmit,
@@ -65,42 +125,17 @@ function EventForm({
     getValues,
     formState,
   } = useForm<EventFormValues>({
-    defaultValues: {
-      color: DEFAULT_EVENT_COLOR,
-      title: "",
-      description: "",
-      link: "",
-      isRecurring: false,
-      daysOfWeek: [],
-      startRecur: "",
-      endRecur: "",
-      ...defaultValues,
-      allDay: defaultValues?.allDay ?? false,
-      start: toDateInputValue(defaultValues?.start),
-      end: toDateInputValue(defaultValues?.end),
-      startTime: toTimeInputValue(defaultValues?.start),
-      endTime: toTimeInputValue(defaultValues?.end),
-    },
+    defaultValues: buildFormValues(defaultValues),
   });
+
   const { errors } = formState;
   const isAllDay = watch("allDay");
   const isRecurring = watch("isRecurring");
 
-  useEffect(() => {
-    if (!defaultValues) return;
-    reset((prev) => ({
-      ...prev,
-      ...defaultValues,
-      start: toDateInputValue(defaultValues.start) || prev.start,
-      end: toDateInputValue(defaultValues.end) || prev.end,
-      startTime: toTimeInputValue(defaultValues.start) || prev.startTime,
-      endTime: toTimeInputValue(defaultValues.end) || prev.endTime,
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValues?.start, defaultValues?.end]);
-
   function onSubmit(values: EventFormValues) {
-    const params: CreateEventParams = {
+    const params: EventSubmitParams = {
+      ...(defaultValues &&
+        isCalendarEvent(defaultValues) && { id: defaultValues.id }),
       title: values.title,
       description: values.description,
       link: values.link,
@@ -117,11 +152,13 @@ function EventForm({
         endTime: values.allDay ? undefined : values.endTime,
       }),
     };
+
     onFormSubmit(params, {
       onSettled: () => {
         reset();
-        const calendarApi = calendarRef.current?.getApi();
-        calendarApi?.unselect();
+        calendarRef.current?.getApi().unselect();
+        // unselect() does nothing when editing (no active FC selection)
+        closeEvent();
       },
     });
   }
@@ -137,18 +174,17 @@ function EventForm({
 
       {/* TOGGLE */}
       <div className="flex items-center gap-6">
-        {/* All day */}
         <div className="flex items-center gap-1">
           <Toggle id="allDay" {...register("allDay")} />
           <Label id="allDay">All day</Label>
         </div>
 
-        {/* Recurring */}
         <div className="flex items-center gap-1">
           <Toggle id="isRecurring" {...register("isRecurring")} />
           <Label id="isRecurring">Repeats</Label>
         </div>
       </div>
+
       {isRecurring && (
         <div className="space-y-2 pl-1">
           <div className="flex flex-col gap-1.5">
@@ -216,7 +252,7 @@ function EventForm({
         </div>
       )}
 
-      {/* Date */}
+      {/* DATE */}
       <div className="flex items-center gap-2">
         <div className="w-full">
           <Label id="start">Start date*</Label>
@@ -300,6 +336,7 @@ function EventForm({
           </div>
         </div>
       )}
+
       {/* TITLE */}
       <div>
         <Label id="title">Title*</Label>

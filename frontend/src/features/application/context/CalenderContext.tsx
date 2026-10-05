@@ -9,6 +9,22 @@ import {
   useRef,
 } from "react";
 
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  description?: string | null;
+  start: string;
+  end: string;
+  allDay: boolean;
+  link?: string | null;
+  color?: string | null;
+  daysOfWeek?: number[] | null;
+  startRecur?: string | null;
+  endRecur?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+};
+
 export interface SelectionInfo {
   start: Date;
   end: Date;
@@ -31,11 +47,17 @@ interface CalendarContextValue {
   goToDate: (date: Date | string) => void;
   clickPosition: ClickPosition | null;
 
+  // NEW EVENT (cell selection) only
   selection: SelectionInfo | null;
   openSelection: (selection: SelectionInfo, position: ClickPosition) => void;
 
+  // VIEW EVENT (card)
   eventId: string | null;
   openEventId: (eventId: string, position: ClickPosition) => void;
+
+  // UPDATE EVENT (edit form) only
+  eventToUpdate: CalendarEvent | null;
+  openUpdateid: (eventId: string, eventData: CalendarEvent) => void;
 
   closeEvent: () => void;
 
@@ -51,6 +73,9 @@ function CalendarProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [eventToUpdate, setEventToUpdate] = useState<CalendarEvent | null>(
+    null,
+  );
   const [clickPosition, setClickPosition] = useState<ClickPosition | null>(
     null,
   );
@@ -59,13 +84,26 @@ function CalendarProvider({ children }: { children: ReactNode }) {
     setSelectedDate(new Date(date));
   }, []);
 
+  // View an event card: clears create + update modes
   const openEventId = (eventId: string, position: ClickPosition) => {
+    setSelection(null);
+    setEventToUpdate(null);
     setEventId(eventId);
     setClickPosition(position);
   };
 
+  // Edit an event: clears create + view modes
+  // (keeps clickPosition so the modal stays where the card was)
+  const openUpdateid = (_eventId: string, eventData: CalendarEvent) => {
+    setSelection(null);
+    setEventId(null);
+    setEventToUpdate(eventData);
+  };
+
+  // New event from cell selection: clears view + update modes
   const openSelection = (selection: SelectionInfo, position: ClickPosition) => {
     setEventId(null);
+    setEventToUpdate(null);
     setSelection(selection);
     setClickPosition(position);
   };
@@ -74,6 +112,7 @@ function CalendarProvider({ children }: { children: ReactNode }) {
     setSelection(null);
     setClickPosition(null);
     setEventId(null);
+    setEventToUpdate(null);
   };
 
   return (
@@ -83,6 +122,8 @@ function CalendarProvider({ children }: { children: ReactNode }) {
         selectedDate,
         goToDate,
         selection,
+        eventToUpdate,
+        openUpdateid,
         eventId,
         clickPosition,
         openEventId,
