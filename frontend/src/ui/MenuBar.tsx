@@ -159,7 +159,7 @@ type ButtonProps =
 function Button({ icon, label, className = "", to, onClick }: ButtonProps) {
   const { isOpen } = useMenuBar();
 
-  const base = `border border-white-tertiary p-3 rounded-full flex items-center gap-3 p-2 my-1 cursor-pointer ${
+  const base = `rounded-full flex items-center gap-2 my-1 cursor-pointer ${
     isOpen ? "w-full justify-start" : "w-fit justify-center"
   }`;
 

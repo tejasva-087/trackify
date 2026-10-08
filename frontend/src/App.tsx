@@ -31,7 +31,10 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
+      <ReactQueryDevtools
+        initialIsOpen={false}
+        buttonPosition="bottom-left"
+      ></ReactQueryDevtools>
       <BrowserRouter>
         <Routes>
           <Route element={<GuestGuard />}>

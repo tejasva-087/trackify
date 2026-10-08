@@ -61,7 +61,7 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
         role="dialog"
         data-calendar-popover
       >
-        <button onClick={closeModal} className="absolute top-5 right-5">
+        <button onClick={closeModal} className="absolute top-5 right-5 z-50">
           <XIcon
             className="cursor-pointer text-black-tertiary w-5 h-5"
             weight="bold"
@@ -106,7 +106,7 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
         display: isModalOpen ? "block" : "none",
       }}
     >
-      <button onClick={closeModal} className="absolute top-5 right-5">
+      <button onClick={closeModal} className="absolute top-5 right-5 z-50">
         <XIcon
           className="cursor-pointer text-black-tertiary w-5 h-5"
           weight="bold"

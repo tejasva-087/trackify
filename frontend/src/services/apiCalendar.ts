@@ -1,17 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 export interface CreateEventParams {
-  title: string; //
-  description?: string; //
-  start: Date | string; //
-  duration?: string; //
-  end?: Date | string; //
-  startTime?: string; //
-  endTime?: string; //
+  title: string;
+  description?: string;
+  start: Date | string;
+  duration?: string;
+  end?: Date | string;
+  startTime?: string;
+  endTime?: string;
   allDay?: boolean;
-  link?: string; //
-  color?: string; //
-  contrastColor?: string; //
+  link?: string;
+  color?: string;
+  contrastColor?: string;
   daysOfWeek?: number[];
   startRecur?: string;
   endRecur?: string;

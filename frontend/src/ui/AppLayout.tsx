@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import AppNavigation from "../features/application/AppNavigation";
 import CalendarProvider from "../features/application/context/CalenderContext";
+import Chatbot from "./Chatbot";
 
 function AppLayout() {
   return (
@@ -11,6 +12,7 @@ function AppLayout() {
           <Outlet />
         </main>
         {/* <ChatMenu /> */}
+        <Chatbot />
       </div>
     </CalendarProvider>
   );

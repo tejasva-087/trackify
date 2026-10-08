@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
@@ -20,6 +20,82 @@ import { useWindowSize } from "../../hooks/getWindowSize";
 import useEvents from "./hooks/useEvents";
 import Spinner from "../../ui/Spinner";
 
+// Shape of the rows coming from GET /event
+type DbEvent = {
+  id: string;
+  title: string;
+  description?: string | null;
+  start: string;
+  end: string;
+  allDay?: boolean | null;
+  link?: string | null;
+  color?: string | null;
+  daysOfWeek?: number[] | null;
+  startRecur?: string | null;
+  endRecur?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  editable?: boolean | null;
+  [key: string]: unknown;
+};
+
+// Events without a color (like the ones the chatbot creates) would be
+// invisible in week/day view, so give them a default one. Change as you like.
+const DEFAULT_EVENT_COLOR = "#2563eb";
+
+// "HH:mm" in local time, used if a recurring event has no startTime/endTime
+function toHHmm(dateStr: string) {
+  const d = new Date(dateStr);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+// Cleans a DB row so FullCalendar can place it in EVERY view (week/day/month):
+// - Postgres dates ("2026-10-09 04:00:00+00") -> proper ISO strings
+// - null values -> undefined (null recurrence fields confuse FullCalendar)
+function toFullCalendarEvent(e: DbEvent) {
+  const base = {
+    id: e.id,
+    title: e.title,
+    color: e.color ?? DEFAULT_EVENT_COLOR,
+    textColor: "#ffffff",
+    editable: e.editable ?? undefined,
+    extendedProps: {
+      description: e.description ?? undefined,
+      link: e.link ?? undefined,
+    },
+  };
+
+  // Recurring event: recurrence fields only (no start/end)
+  if (e.daysOfWeek && e.daysOfWeek.length > 0) {
+    return {
+      ...base,
+      daysOfWeek: e.daysOfWeek,
+      startTime: e.startTime ?? toHHmm(e.start),
+      endTime: e.endTime ?? toHHmm(e.end),
+      startRecur: e.startRecur ?? undefined,
+      endRecur: e.endRecur ?? undefined,
+    };
+  }
+
+  // All-day event: date only
+  if (e.allDay) {
+    return {
+      ...base,
+      allDay: true,
+      start: e.start.slice(0, 10),
+      end: e.end.slice(0, 10),
+    };
+  }
+
+  // Normal timed event
+  return {
+    ...base,
+    allDay: false,
+    start: new Date(e.start).toISOString(),
+    end: new Date(e.end).toISOString(),
+  };
+}
+
 function Calendar() {
   const { width } = useWindowSize();
   const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
@@ -33,6 +109,12 @@ function Calendar() {
     openEventId,
   } = useCalendar();
   const { events, isLoadingEvents } = useEvents();
+
+  // Must be above the early return below (hooks can't be called conditionally)
+  const calendarEvents = useMemo(
+    () => ((events ?? []) as DbEvent[]).map(toFullCalendarEvent),
+    [events],
+  );
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -191,7 +273,7 @@ function Calendar() {
         eventClick={handleEventClick}
         eventDrop={closeEvent}
         dayMaxEvents
-        events={events}
+        events={calendarEvents}
         datesSet={() => closeEvent()}
       />
     </div>

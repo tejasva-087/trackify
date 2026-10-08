@@ -1,11 +1,32 @@
+// class AppError extends Error {
+//   public statusCode: number;
+//   public status: string;
+//   public isOperational: boolean;
+
+//   constructor(message: string, statusCode: number) {
+//     super(message);
+
+//     this.statusCode = statusCode;
+//     this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+//     this.isOperational = true;
+
+//     Error.captureStackTrace(this, this.constructor);
+//   }
+// }
+
+// export default AppError;
+
 class AppError extends Error {
-  public statusCode: number;
-  public status: string;
-  public isOperational: boolean;
+  statusCode: number;
+  status: string;
+  isOperational: boolean;
 
-  constructor(message: string, statusCode: number) {
-    super(message);
-
+  constructor(
+    message: string,
+    statusCode: number,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options); // attaches `cause` to the error
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
     this.isOperational = true;

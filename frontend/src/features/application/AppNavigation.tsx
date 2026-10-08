@@ -1,16 +1,18 @@
+import type { MouseEvent } from "react";
+
 import {
   TextIndentIcon,
   TextOutdentIcon,
   PlusIcon,
-  UserIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
-import type { MouseEvent } from "react";
+
+import useLogout from "../authentication/hooks/useLogout";
+import { useCalendar } from "./context/CalenderContext";
+
 import MenuBar from "../../ui/MenuBar";
 import Logo from "../../ui/Logo";
 import MiniCalendar from "./MiniCalendar";
-import { useCalendar } from "./context/CalenderContext";
-import useLogout from "../authentication/hooks/useLogOut";
 
 function AppNavigation() {
   const { openSelection } = useCalendar();
@@ -72,29 +74,28 @@ function AppNavigation() {
 
         <MenuBar.ContentOnOpen>
           <MiniCalendar />
-          <div className="border-t border-white-tertiary mt-5"></div>
         </MenuBar.ContentOnOpen>
 
-        <div className="h-full flex flex-col items-center justify-between">
-          <MenuBar.Button
-            onClick={handleAddEvent}
-            icon={<PlusIcon className="w-6 h-6" />}
-            label="New event"
-            className="mt-4   "
-          />
-          <div className="w-full flex flex-col gap-2">
+        <div className="border-t border-white-tertiary"></div>
+
+        <div className="h-full flex flex-col items-start justify-between">
+          <div className="w-full">
+            <div className="border-t border-white-tertiary mt-5"></div>
             <MenuBar.Button
-              to="/user"
-              icon={<UserIcon className="w-6 h-6" />}
-              label="Your account"
+              onClick={handleAddEvent}
+              icon={<PlusIcon className="w-6 h-6" />}
+              label="New event"
+              className="mt-4 border border-white-tertiary p-3"
             />
-            <MenuBar.Button
-              className="border-danger! text-danger!"
-              onClick={() => logout()}
-              icon={<SignOutIcon className="w-6 h-6" weight="regular" />}
-              label={isLoggingOut ? "Logging out..." : "Log out"}
-            />
+            <div className="border-t border-white-tertiary mt-5"></div>
           </div>
+
+          <MenuBar.Button
+            className="border-danger! text-danger! p-2 w-fit!"
+            onClick={() => logout()}
+            icon={<SignOutIcon className="w-6 h-6" weight="regular" />}
+            label={isLoggingOut ? "Logging out..." : "Log out"}
+          />
         </div>
       </MenuBar.Window>
     </MenuBar>
