@@ -8,8 +8,8 @@ import morgan from "morgan";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 
-import eventRouters from "./routes/event.route.js";
-import chatbotRouters from "./routes/chatbot.route.js";
+import eventRouter from "./routes/event.route.js";
+import chatRouter from "./routes/chat.route.js";
 
 import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/error.controller.js";
@@ -53,8 +53,8 @@ app.all("/api/v1/auth/{*any}", toNodeHandler(auth));
 app.use(express.json({ limit: "10kb" }));
 
 // app routes
-app.use("/api/v1/event", eventRouters);
-app.use("/api/v1/chat", chatbotRouters);
+app.use("/api/v1/event", eventRouter);
+app.use("/api/v1/chat", chatRouter);
 
 // Route not found
 app.use((req: Request, res: Response, next: NextFunction) => {

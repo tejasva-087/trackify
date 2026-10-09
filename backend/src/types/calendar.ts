@@ -13,8 +13,3 @@ export type CalendarEvent = {
   startTime?: string | null;
   endTime?: string | null;
 };
-
-export type MessageResponse = {
-  events: CalendarEvent[];
-  message: string;
-};

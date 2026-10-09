@@ -35,57 +35,49 @@ export const auth = betterAuth({
     },
   },
 
-  // blocks sign-in until verified — needed for req #2/#3
   requireEmailVerification: true,
   minPasswordLength: 8,
-  // don't log them in until they verify (matches your redirect flow)
   autoSignIn: false,
-  // revoke all sessions after signup
   revokeSessionsOnPasswordReset: true,
 
   emailAndPassword: {
     enabled: true,
-
-    // Mails if any new account is signed up
     onExistingUserSignUp: async ({ user }, _request) => {
-      console.log("SOME USER TRIED TO SIGN UP USING THE SAME EMAIL");
-      // void sendMail({
-      //   to: user.email,
-      //   subject: "Sign-up attempt with your email",
-      //   body: "Someone tried to create an account using your email address. If this was you, try signing in instead. If not, you can safely ignore this email.",
-      // });
+      void sendMail({
+        to: user.email,
+        subject: "Sign-up attempt with your email",
+        body: "Someone tried to create an account using your email address. If this was you, try signing in instead. If not, you can safely ignore this email.",
+      });
     },
 
     // Password reset mail
     sendResetPassword: async ({ user, url }, _request) => {
-      console.log("PASSWORD RESET URL:", url);
-      // void sendMail({
-      //   to: user.email,
-      //   subject: "Reset your password",
-      //   body: `Click the link to reset your password: ${url}`,
-      // });
+      void sendMail({
+        to: user.email,
+        subject: "Reset your password",
+        body: `Click the link to reset your password: ${url}`,
+      });
     },
     resetPasswordTokenExpiresIn: TOKEN_EXPIRATION,
 
     // Password reset successful mail
     onPasswordReset: async ({ user }, _request) => {
-      // void sendMail({
-      //   to: user.email,
-      //   subject: "Password-reset successful",
-      //   body: "Your password has been reset.",
-      // });
+      void sendMail({
+        to: user.email,
+        subject: "Password-reset successful",
+        body: "Your password has been reset.",
+      });
     },
   },
 
   // Email verification mailer
   emailVerification: {
     sendVerificationEmail: async ({ user, url }, _request) => {
-      // void sendMail({
-      //   to: user.email,
-      //   subject: "Verify your email address",
-      //   body: `Click the link to verify your email: ${url}`,
-      // });
-      console.log("EMAIL VERIFICATION URL:", url);
+      void sendMail({
+        to: user.email,
+        subject: "Verify your email address",
+        body: `Click the link to verify your email: ${url}`,
+      });
     },
 
     // log them in once they click the link
@@ -100,14 +92,11 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        // sent to the CURRENT email, confirming the change was requested
-        // void sendMail({
-        //   to: user.email,
-        //   subject: "Confirm your email change",
-        //   body: `Click the link to verify your new email ${newEmail}: ${url}`,
-        // });
-
-        console.log("NEW EMAIL VERIFICATION URL: ", url);
+        void sendMail({
+          to: user.email,
+          subject: "Confirm your email change",
+          body: `Click the link to verify your new email ${newEmail}: ${url}`,
+        });
       },
     },
   },

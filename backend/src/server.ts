@@ -16,7 +16,7 @@ async function startServer() {
     console.log("✅ Database connected");
 
     const server = app.listen(PORT, () => {
-      console.log(`🚀 SERVER STARTED ON PORT: ${process.env.PORT}`);
+      console.log(`🚀 SERVER STARTED ON PORT: ${PORT}`);
     });
 
     process.on("unhandledRejection", (err: Error) => {
