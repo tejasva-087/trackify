@@ -7,7 +7,8 @@ type TextProps = {
 };
 
 function Text({ children, type = "p", className = "" }: TextProps) {
-  if (type === "h1") return <h1 className={`${className}`}>{children}</h1>;
+  if (type === "h1")
+    return <h1 className={`text-4xl ${className}`}>{children}</h1>;
   if (type === "h2")
     return (
       <h2 className={`text-3xl font-semibold ${className}`}>{children}</h2>
