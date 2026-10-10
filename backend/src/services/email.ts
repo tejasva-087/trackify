@@ -11,7 +11,7 @@ export type emailParams = {
 
 export async function sendMail({ to, subject, body }: emailParams) {
   const { data, error } = await resend.emails.send({
-    from: "Memorymap <hello@memorymap.space>",
+    from: "Trackify <hello@memorymap.space>",
     to,
     subject,
     html: body,
