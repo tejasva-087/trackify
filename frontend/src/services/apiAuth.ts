@@ -21,7 +21,7 @@ export async function signUp({ name, email, password, image }: SignUpParams) {
     email,
     password,
     image,
-    callbackURL: import.meta.env.VITE_API_URL,
+    callbackURL: `${import.meta.env.VITE_FRONTEND_URL}/application`,
   });
 
   if (error) {
@@ -115,7 +115,7 @@ export async function getSession() {
 export async function signInWithGoogle() {
   const { data, error } = await authClient.signIn.social({
     provider: "google",
-    callbackURL: import.meta.env.VITE_API_URL,
+    callbackURL: `${import.meta.env.VITE_FRONTEND_URL}/application`,
   });
 
   if (error) {
@@ -129,7 +129,7 @@ export async function signInWithGoogle() {
 export async function signInWithGithub() {
   const { data, error } = await authClient.signIn.social({
     provider: "github",
-    callbackURL: import.meta.env.VITE_API_URL,
+    callbackURL: `${import.meta.env.VITE_FRONTEND_URL}/application`,
   });
 
   if (error) {
