@@ -16,6 +16,8 @@ import globalErrorHandler from "./controllers/error.controller.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(helmet());
 
 app.use(
