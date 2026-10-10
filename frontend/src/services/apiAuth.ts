@@ -21,7 +21,7 @@ export async function signUp({ name, email, password, image }: SignUpParams) {
     email,
     password,
     image,
-    callbackURL: "http://localhost:5173/application",
+    callbackURL: import.meta.env.VITE_API_URL,
   });
 
   if (error) {
@@ -53,7 +53,7 @@ export async function logIn({ email, password }: LogInParams) {
 export async function resendVerification(email: string) {
   const { data, error } = await authClient.sendVerificationEmail({
     email,
-    callbackURL: `${import.meta.env.FRONTEND_URL}/application`,
+    callbackURL: `${import.meta.env.VITE_FRONTEND_URL}/application`,
   });
 
   if (error) {
@@ -70,7 +70,7 @@ export type ForgotPasswordParams = {
 export async function forgotPassword({ email }: ForgotPasswordParams) {
   const { data, error } = await authClient.requestPasswordReset({
     email,
-    redirectTo: `${import.meta.env.FRONTEND_URL}/reset-password`,
+    redirectTo: `${import.meta.env.VITE_FRONTEND_URL}/reset-password`,
   });
 
   if (error) {
@@ -115,7 +115,7 @@ export async function getSession() {
 export async function signInWithGoogle() {
   const { data, error } = await authClient.signIn.social({
     provider: "google",
-    callbackURL: "http://localhost:5173/application",
+    callbackURL: import.meta.env.VITE_API_URL,
   });
 
   if (error) {
@@ -129,7 +129,7 @@ export async function signInWithGoogle() {
 export async function signInWithGithub() {
   const { data, error } = await authClient.signIn.social({
     provider: "github",
-    callbackURL: "http://localhost:5173/application",
+    callbackURL: import.meta.env.VITE_API_URL,
   });
 
   if (error) {
