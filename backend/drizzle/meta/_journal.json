@@ -43,6 +43,13 @@
       "when": 1790775296349,
       "tag": "0005_supreme_silver_fox",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791630623416,
+      "tag": "0006_ambitious_lady_deathstrike",
+      "breakpoints": true
     }
   ]
 }

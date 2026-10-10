@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./user.js";
 import { relations } from "drizzle-orm";
 
-export const chat = pgTable("event", {
+export const chat = pgTable("chat", {
   userId: text("userId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -17,7 +17,7 @@ export const chat = pgTable("event", {
     .notNull(),
 });
 
-export const eventRelations = relations(chat, ({ one }) => ({
+export const chatRelations = relations(chat, ({ one }) => ({
   user: one(user, {
     fields: [chat.userId],
     references: [user.id],

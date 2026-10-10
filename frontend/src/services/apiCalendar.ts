@@ -75,15 +75,13 @@ export async function getEvent(id: string) {
     });
 
     if (!res.ok) {
-      throw new Error(
-        `Failed to fetch events: ${res.status} ${res.statusText}`,
-      );
+      throw new Error(`Failed to fetch event: ${res.status} ${res.statusText}`);
     }
 
     return await res.json();
   } catch (error) {
     console.error(
-      "Error fetching events:",
+      "Error fetching event:",
       error instanceof Error ? error.message : error,
     );
     throw error;
