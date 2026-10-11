@@ -8,11 +8,11 @@ import {
 import { NavLink } from "react-router-dom";
 import Text from "./Text";
 
-type MenuBarContext = {
+type MenuBarContextType = {
   isOpen: boolean;
   toggle: () => void;
 };
-const MenuBarContext = createContext<MenuBarContext | undefined>(undefined);
+const MenuBarContext = createContext<MenuBarContextType | undefined>(undefined);
 
 function MenuBar({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,10 +49,14 @@ function Window({
   const { isOpen } = useMenuBar();
 
   return (
-    <div className={`relative w-18`}>
+    <div className="relative w-14 shrink-0 md:w-18">
       <div
         data-menubar-window
-        className={`border-r border-white-tertiary bg-white-primary flex flex-col p-2 h-screen absolute top-0 left-0 z-10 transition-all duration-300 ${isOpen ? "w-60" : "w-18 items-center justify-start"} ${className}`}
+        className={`absolute left-0 top-0 z-30 flex h-full flex-col overflow-y-auto overflow-x-hidden border-r border-white-tertiary bg-white-primary p-2 transition-all duration-300 ${
+          isOpen
+            ? "w-60 max-w-[85vw]"
+            : "w-14 items-center justify-start md:w-18"
+        } ${className}`}
       >
         {children}
       </div>
@@ -95,7 +99,7 @@ function Item({
 
   return (
     <div
-      className={`flex items-center gap-1 my-2 ${isOpen ? "flex-row" : "flex-col"} shrink-0`}
+      className={`my-2 flex shrink-0 items-center gap-1 ${isOpen ? "flex-row" : "flex-col"}`}
     >
       {item}
       <Text
@@ -112,16 +116,18 @@ function Trigger({
   children,
   className = "",
 }: {
-  children: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
+  children: ReactNode | ((isOpen: boolean) => ReactNode);
   className?: string;
 }) {
   const { isOpen, toggle } = useMenuBar();
 
   return (
     <button
-      className={`w-fit ${className}`}
+      type="button"
+      className={`w-fit touch-manipulation p-1 ${className}`}
       onClick={toggle}
       aria-expanded={isOpen}
+      aria-label={isOpen ? "Collapse menu" : "Expand menu"}
     >
       {typeof children === "function" ? children(isOpen) : children}
     </button>
@@ -159,14 +165,14 @@ type ButtonProps =
 function Button({ icon, label, className = "", to, onClick }: ButtonProps) {
   const { isOpen } = useMenuBar();
 
-  const base = `rounded-full flex items-center gap-2 my-1 cursor-pointer ${
+  const base = `rounded-full flex items-center gap-2 my-1 cursor-pointer touch-manipulation ${
     isOpen ? "w-full justify-start" : "w-fit justify-center"
   }`;
 
   const content = (
     <>
-      <span className="shrink-0 flex items-center justify-center">{icon}</span>
-      {isOpen && <span className="whitespace-nowrap truncate">{label}</span>}
+      <span className="flex shrink-0 items-center justify-center">{icon}</span>
+      {isOpen && <span className="truncate whitespace-nowrap">{label}</span>}
     </>
   );
 

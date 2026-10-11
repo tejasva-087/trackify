@@ -53,12 +53,12 @@ function AppNavigation() {
             {(isOpen) =>
               isOpen ? (
                 <TextOutdentIcon
-                  className="cursor-pointer w-6 h-6"
+                  className="h-6 w-6 cursor-pointer"
                   weight="regular"
                 />
               ) : (
                 <TextIndentIcon
-                  className="cursor-pointer w-6 h-6"
+                  className="h-6 w-6 cursor-pointer"
                   weight="regular"
                 />
               )
@@ -78,22 +78,22 @@ function AppNavigation() {
 
         <div className="border-t border-white-tertiary"></div>
 
-        <div className="h-full flex flex-col items-start justify-between">
+        <div className="flex min-h-0 flex-1 flex-col items-start justify-between">
           <div className="w-full">
-            <div className="border-t border-white-tertiary mt-5"></div>
+            <div className="mt-5 border-t border-white-tertiary"></div>
             <MenuBar.Button
               onClick={handleAddEvent}
-              icon={<PlusIcon className="w-6 h-6" />}
+              icon={<PlusIcon className="h-6 w-6" />}
               label="New event"
               className="mt-4 border border-white-tertiary p-3"
             />
-            <div className="border-t border-white-tertiary mt-5"></div>
+            <div className="mt-5 border-t border-white-tertiary"></div>
           </div>
 
           <MenuBar.Button
-            className="border-danger! text-danger! p-2 w-fit!"
+            className="w-fit! border-danger! p-2 text-danger!"
             onClick={() => logout()}
-            icon={<SignOutIcon className="w-6 h-6" weight="regular" />}
+            icon={<SignOutIcon className="h-6 w-6" weight="regular" />}
             label={isLoggingOut ? "Logging out..." : "Log out"}
           />
         </div>

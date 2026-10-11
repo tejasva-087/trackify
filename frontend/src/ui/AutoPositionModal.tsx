@@ -14,7 +14,7 @@ type Position = {
   left: number;
 };
 
-type AutoPositionModal = {
+type AutoPositionModalProps = {
   children: ReactNode;
   position: Position;
   onClose?: () => void;
@@ -22,23 +22,39 @@ type AutoPositionModal = {
 
 const MAX_MODAL_WIDTH = 448;
 const GAP = 6;
+const MOBILE_BREAK_POINT =
+  Number(import.meta.env.VITE_MOBILE_BREAK_POINT) || 768;
 
-function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
+function CloseButton({ onClose }: { onClose?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClose}
+      aria-label="Close"
+      className="absolute right-2 top-2 z-50 p-3 touch-manipulation"
+    >
+      <XIcon
+        className="h-5 w-5 cursor-pointer text-black-tertiary"
+        weight="bold"
+      />
+    </button>
+  );
+}
+
+// Visibility is owned by the parent: it renders this component only while a
+// selection exists, and `onClose` must clear that selection.
+function AutoPositionModal({
+  children,
+  position,
+  onClose,
+}: AutoPositionModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const { width, height } = useWindowSize();
-  const [isModalOpen, setIsModalOpen] = useState(true);
   const [contentHeight, setContentHeight] = useState(0);
-  const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
+  const isMobile = width < MOBILE_BREAK_POINT;
 
-  function closeModal() {
-    setIsModalOpen(true);
-    onClose?.();
-  }
-
-  // Track the content's real size directly, instead of re-measuring on an
-  // effect keyed to `children` (which changes every render regardless of
-  // whether the content actually resized, and lags a render behind).
+  // Track the content's real size directly.
   useLayoutEffect(() => {
     const el = contentRef.current;
     if (!el) return;
@@ -48,38 +64,41 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
       if (entry) setContentHeight(entry.target.scrollHeight);
     });
     observer.observe(el);
-    setContentHeight(el.scrollHeight); // measure immediately, don't wait for the first callback
+    setContentHeight(el.scrollHeight);
 
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   if (isMobile)
     return createPortal(
-      <div
-        className="overflow-hidden absolute bottom-0 left-0 w-screen h-fit z-50 bg-white-primary border border-white-tertiary rounded-xl"
-        ref={modalRef}
-        role="dialog"
-        data-calendar-popover
-      >
-        <button onClick={closeModal} className="absolute top-5 right-5 z-50">
-          <XIcon
-            className="cursor-pointer text-black-tertiary w-5 h-5"
-            weight="bold"
-          />
-        </button>
+      <>
+        {/* Backdrop: tap outside to close */}
         <div
-          ref={contentRef}
-          className="overflow-y-scroll h-full"
-          style={{ maxHeight: "100svh" }}
+          className="fixed inset-0 z-40 bg-black/30"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          data-calendar-popover
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-xl border border-white-tertiary bg-white-primary shadow-xl"
         >
-          {children}
+          <CloseButton onClose={onClose} />
+          <div
+            ref={contentRef}
+            className="min-h-0 overflow-y-auto overscroll-contain"
+          >
+            {children}
+          </div>
         </div>
-      </div>,
+      </>,
       document.body,
     );
 
-  // Cap to what's actually available in the viewport, not a flat 80vh,
-  // so the modal always gets its own scrollbar instead of running off-screen.
+  // Desktop: cap to the available viewport height so the popover scrolls
+  // internally instead of running off-screen.
   const maxAvailableHeight = Math.max(height - GAP * 2, 100);
   const modalHeight = Math.min(contentHeight, maxAvailableHeight);
 
@@ -95,23 +114,14 @@ function AutoPositionModal({ children, position, onClose }: AutoPositionModal) {
 
   return createPortal(
     <div
-      className="overflow-hidden absolute z-50 h-fit bg-white-primary border border-white-tertiary rounded-xl shadow-xl"
       ref={modalRef}
       role="dialog"
       data-calendar-popover
-      style={{
-        width: MAX_MODAL_WIDTH,
-        top,
-        left,
-        display: isModalOpen ? "block" : "none",
-      }}
+      // `fixed`, because getBoundingClientRect() values are viewport-relative
+      className="fixed z-50 h-fit overflow-hidden rounded-xl border border-white-tertiary bg-white-primary shadow-xl"
+      style={{ width: MAX_MODAL_WIDTH, top, left }}
     >
-      <button onClick={closeModal} className="absolute top-5 right-5 z-50">
-        <XIcon
-          className="cursor-pointer text-black-tertiary w-5 h-5"
-          weight="bold"
-        />
-      </button>
+      <CloseButton onClose={onClose} />
       <div
         ref={contentRef}
         className="overflow-y-auto"

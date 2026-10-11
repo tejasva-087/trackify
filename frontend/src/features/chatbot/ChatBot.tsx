@@ -1,8 +1,8 @@
 import { ChatTeardropDotsIcon } from "@phosphor-icons/react";
 import { useState, useRef } from "react";
-import AutoPositionModal from "./AutoPositionModal";
-import Text from "./Text";
-import ChatPannel from "../features/chatbot/ChatPannel";
+import AutoPositionModal from "../../ui/AutoPositionModal";
+import ChatPannel from "./ChatPannel";
+import Text from "../../ui/Text";
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);

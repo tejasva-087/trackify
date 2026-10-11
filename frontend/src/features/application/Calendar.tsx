@@ -39,8 +39,20 @@ type DbEvent = {
   [key: string]: unknown;
 };
 
-// Events without a color (like the ones the chatbot creates) would be
-// invisible in week/day view, so give them a default one. Change as you like.
+type Position = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
+const MOBILE_BREAK_POINT =
+  Number(import.meta.env.VITE_MOBILE_BREAK_POINT) || 768;
+
 const DEFAULT_EVENT_COLOR = "#2563eb";
 
 // "HH:mm" in local time, used if a recurring event has no startTime/endTime
@@ -49,9 +61,6 @@ function toHHmm(dateStr: string) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-// Cleans a DB row so FullCalendar can place it in EVERY view (week/day/month):
-// - Postgres dates ("2026-10-09 04:00:00+00") -> proper ISO strings
-// - null values -> undefined (null recurrence fields confuse FullCalendar)
 function toFullCalendarEvent(e: DbEvent) {
   const base = {
     id: e.id,
@@ -65,7 +74,6 @@ function toFullCalendarEvent(e: DbEvent) {
     },
   };
 
-  // Recurring event: recurrence fields only (no start/end)
   if (e.daysOfWeek && e.daysOfWeek.length > 0) {
     return {
       ...base,
@@ -77,7 +85,6 @@ function toFullCalendarEvent(e: DbEvent) {
     };
   }
 
-  // All-day event: date only
   if (e.allDay) {
     return {
       ...base,
@@ -87,7 +94,6 @@ function toFullCalendarEvent(e: DbEvent) {
     };
   }
 
-  // Normal timed event
   return {
     ...base,
     allDay: false,
@@ -96,9 +102,39 @@ function toFullCalendarEvent(e: DbEvent) {
   };
 }
 
+function rectToPosition(rect: DOMRect): Position {
+  return {
+    x: rect.x,
+    y: rect.y,
+    width: rect.width,
+    height: rect.height,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+    left: rect.left,
+  };
+}
+
+// Never returns null: on touch devices the event target can be unexpected,
+// and the mobile bottom sheet doesn't need an anchor anyway.
+function getAnchorPosition(
+  target: EventTarget | null | undefined,
+  fallbackEl?: HTMLElement | null,
+): Position {
+  const el =
+    fallbackEl ??
+    (target instanceof HTMLElement
+      ? ((target.closest('[role="button"]') as HTMLElement | null) ?? target)
+      : null);
+
+  if (el) return rectToPosition(el.getBoundingClientRect());
+
+  return rectToPosition(new DOMRect(0, 0, 0, 0));
+}
+
 function Calendar() {
   const { width } = useWindowSize();
-  const isMobile = width < import.meta.env.VITE_MOBILE_BREAK_POINT;
+  const isMobile = width < MOBILE_BREAK_POINT;
 
   const {
     selectedDate,
@@ -110,7 +146,6 @@ function Calendar() {
   } = useCalendar();
   const { events, isLoadingEvents } = useEvents();
 
-  // Must be above the early return below (hooks can't be called conditionally)
   const calendarEvents = useMemo(
     () => ((events ?? []) as DbEvent[]).map(toFullCalendarEvent),
     [events],
@@ -143,74 +178,36 @@ function Calendar() {
     calendarApi.changeView("timeGridDay", selectedDate);
   }, [selectedDate, calendarRef]);
 
+  // Desktop: click/drag on the grid
   function handleSelect(selectInfo: DateSelectInfo) {
-    console.log("click");
-    const target = selectInfo.jsEvent?.target;
-
-    if (!(target instanceof HTMLElement)) return;
-
-    const cellEl = target.closest('[role="button"]');
-
-    if (!cellEl) return;
-
-    const rect = cellEl.getBoundingClientRect();
-
-    const position = {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-      top: rect.top,
-      right: rect.right,
-      bottom: rect.bottom,
-      left: rect.left,
-    };
-
     openSelection(
       {
         start: selectInfo.start,
         end: selectInfo.end,
         allDay: selectInfo.allDay,
       },
-      position,
+      getAnchorPosition(selectInfo.jsEvent?.target),
     );
   }
 
   function handleEventClick(eventInfo: EventClickInfo) {
     eventInfo.jsEvent?.preventDefault();
-    const target = eventInfo.jsEvent?.target;
 
-    if (!(target instanceof HTMLElement)) return;
-
-    const cellEl = target.closest('[role="button"]');
-
-    if (!cellEl) return;
-
-    const rect = cellEl.getBoundingClientRect();
-
-    const position = {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-      top: rect.top,
-      right: rect.right,
-      bottom: rect.bottom,
-      left: rect.left,
-    };
-
-    openEventId(eventInfo.event.id, position);
+    openEventId(
+      eventInfo.event.id,
+      getAnchorPosition(eventInfo.jsEvent?.target),
+    );
   }
 
   if (isLoadingEvents)
     return (
-      <div className="h-screen w-screen flex items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center">
         <Spinner />
       </div>
     );
 
   return (
-    <div className="h-full w-full min-h-0">
+    <div className="h-full min-h-0 w-full">
       <FullCalendar
         ref={calendarRef}
         borderless
@@ -246,23 +243,40 @@ function Calendar() {
             : "timeGridWeek,timeGridDay,dayGridMonth",
         }}
         headerToolbarClass="border-b"
-        /*
-         * Navigation
-         */
         dayCellDidMount={(arg) => {
           arg.el.style.cursor = "pointer";
         }}
+        /*
+         * Tap handling. A quick tap fires dateClick on touch devices,
+         * but NOT select (select needs a long-press on touch).
+         */
         dateClick={(arg) => {
           if (arg.view.type === "dayGridMonth") {
             goToDate(arg.date);
             closeEvent();
+            return;
           }
+
+          // Desktop uses `select`; only handle taps on mobile to avoid
+          // opening the modal twice.
+          if (!isMobile) return;
+
+          const start = arg.date;
+          const end = arg.allDay
+            ? new Date(start.getTime() + 24 * 60 * 60 * 1000)
+            : new Date(start.getTime() + 60 * 60 * 1000);
+
+          openSelection(
+            { start, end, allDay: arg.allDay },
+            getAnchorPosition(arg.jsEvent?.target, arg.dayEl),
+          );
         }}
         /*
-         * Selecting a time range
+         * Selecting a time range (mouse drag, or long-press on touch)
          */
         selectable
         selectMirror
+        selectLongPressDelay={300}
         select={handleSelect}
         unselect={closeEvent}
         unselectCancel="[data-calendar-popover]"
@@ -270,6 +284,7 @@ function Calendar() {
          * Events
          */
         editable
+        eventLongPressDelay={300}
         eventClick={handleEventClick}
         eventDrop={closeEvent}
         dayMaxEvents
