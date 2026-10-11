@@ -207,8 +207,9 @@ function EventForm({
             </Text>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-full">
+          {/* Two equal columns; min-w-0 stops iOS date inputs overflowing */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="min-w-0">
               <Label id="startRecur">Repeat from*</Label>
               <Input
                 type="date"
@@ -224,7 +225,7 @@ function EventForm({
                 {errors?.startRecur?.message || ""}
               </Text>
             </div>
-            <div className="w-full">
+            <div className="min-w-0">
               <Label id="endRecur">Repeat until (optional)</Label>
               <Input
                 type="date"
@@ -252,8 +253,8 @@ function EventForm({
       )}
 
       {/* DATE */}
-      <div className="flex items-center gap-2">
-        <div className="w-full">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="min-w-0">
           <Label id="start">Start date*</Label>
           <Input
             type="date"
@@ -266,7 +267,7 @@ function EventForm({
             {errors?.start?.message || ""}
           </Text>
         </div>
-        <div className="w-full">
+        <div className="min-w-0">
           <Label id="end">End date*</Label>
           <Input
             type="date"
@@ -290,8 +291,8 @@ function EventForm({
 
       {/* TIME */}
       {!isAllDay && (
-        <div className="flex items-center gap-2">
-          <div className="w-full">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="min-w-0">
             <Label id="startTime">Start Time*</Label>
             <Input
               type="time"
@@ -304,7 +305,7 @@ function EventForm({
               {errors?.startTime?.message || ""}
             </Text>
           </div>
-          <div className="w-full">
+          <div className="min-w-0">
             <Label id="endTime">End Time*</Label>
             <Input
               type="time"

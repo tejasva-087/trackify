@@ -63,3 +63,48 @@
       100% 100%;
   }
 }
+
+/*
+  Paste this at the END of your global stylesheet (e.g. src/index.css),
+  after the Tailwind imports.
+
+  ALSO: in index.html, the viewport meta tag must be exactly:
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  Without viewport-fit=cover, env(safe-area-inset-bottom) is always 0.
+*/
+
+/* iOS renders date/time inputs as native controls with their own intrinsic
+   width, which makes neighbouring fields overlap. Reset that. */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  /* match your text inputs' height; adjust if yours differs */
+  min-height: 2.75rem;
+}
+
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value,
+input[type="datetime-local"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+  min-height: 1.5em;
+}
+
+/* Inputs under 16px make iOS Safari zoom the page on focus. */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

@@ -58,8 +58,9 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
   };
 
   return (
-    <div className={`h-160 w-full flex flex-col ${className}`}>
-      <main className="flex-1 overflow-y-auto p-4 space-y-3">
+    // dvh follows iOS Safari's collapsing toolbar; fixed h-160 on desktop only.
+    <div className={`h-[65dvh] md:h-160 w-full flex flex-col ${className}`}>
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3">
         <ChatMessage type="received">
           Hello there, How can i assist you?
         </ChatMessage>
@@ -109,14 +110,18 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
         )}
       </main>
 
-      <div className="p-3 border-t border-white-tertiary">
+      <div
+        className="shrink-0 p-3 border-t border-white-tertiary"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
           <div className="flex items-center justify-between px-2 text-xs text-gray-500">
             <span>Parser / Model:</span>
+            {/* text-base on mobile (16px) stops iOS zooming in on focus */}
             <select
               {...register("parser")}
               disabled={sending}
-              className="bg-transparent border border-white-tertiary rounded px-2 py-1 outline-none text-xs cursor-pointer disabled:opacity-50"
+              className="bg-transparent border border-white-tertiary rounded px-2 py-1 outline-none text-base md:text-xs cursor-pointer disabled:opacity-50"
             >
               <option value="openai">OpenAI</option>
               <option value="gemini">Gemini</option>
@@ -130,13 +135,13 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
               placeholder={
                 sending ? "Thinking..." : `Type a message using ${parser}...`
               }
-              className="w-full rounded-full! border-none outline-0"
+              className="w-full min-w-0 rounded-full! border-none outline-0"
               disabled={sending}
               {...register("message")}
             />
             <Button
               type="primary"
-              className="w-fit! rounded-full!"
+              className="w-fit! shrink-0 rounded-full!"
               disabled={sending}
             >
               <PaperPlaneTiltIcon className={sending ? "animate-pulse" : ""} />

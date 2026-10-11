@@ -25,6 +25,10 @@ const GAP = 6;
 const MOBILE_BREAK_POINT =
   Number(import.meta.env.VITE_MOBILE_BREAK_POINT) || 768;
 
+// Extra room at the bottom of the scroll area so the last element (Save button,
+// chat input) can be scrolled above iOS Safari's floating toolbar.
+const MOBILE_BOTTOM_CLEARANCE = "5rem";
+
 function CloseButton({ onClose }: { onClose?: () => void }) {
   return (
     <button
@@ -74,7 +78,7 @@ function AutoPositionModal({
       <>
         {/* Backdrop: tap outside to close */}
         <div
-          className="fixed inset-0 z-40 bg-black/30"
+          className="fixed inset-x-0 top-0 bottom-0 z-40 bg-black/30"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -83,12 +87,17 @@ function AutoPositionModal({
           role="dialog"
           aria-modal="true"
           data-calendar-popover
-          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-xl border border-white-tertiary bg-white-primary shadow-xl"
+          // 80dvh keeps the sheet clear of the status bar / Dynamic Island.
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col overflow-hidden rounded-t-xl border border-white-tertiary bg-white-primary shadow-xl"
         >
           <CloseButton onClose={onClose} />
           <div
             ref={contentRef}
             className="min-h-0 overflow-y-auto overscroll-contain"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              paddingBottom: `calc(${MOBILE_BOTTOM_CLEARANCE} + env(safe-area-inset-bottom, 0px))`,
+            }}
           >
             {children}
           </div>
