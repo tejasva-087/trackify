@@ -17,6 +17,7 @@ const Application = lazy(() => import("./pages/Application"));
 import AuthGuard from "./features/authentication/AuthGuard";
 import GuestGuard from "./features/authentication/GuestGuard";
 import Spinner from "./ui/Spinner";
+import UserPreview from "./features/authentication/UserPreview";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,6 +66,7 @@ function App() {
                 element={<EmailVerification />}
               />
               <Route path="/application" element={<Application />} />
+              <Route path="/user" element={<UserPreview />} />
             </Route>
 
             {/* CATCH-ALL */}

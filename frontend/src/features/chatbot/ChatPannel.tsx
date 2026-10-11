@@ -8,6 +8,7 @@ import type { ParserType } from "./types";
 import { useChatHistory } from "./hook/useChatHistory";
 import { useSendMessage } from "./hook/useSendMessage";
 import { getFriendlyErrorMessage } from "../../utils/ChatBotErrors";
+import useDeleteChats from "./hook/useDeleteChats";
 
 type FormData = {
   message: string;
@@ -34,6 +35,7 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
     error: historyError,
   } = useChatHistory();
   const { sendMessage, loading: sending, error: sendError } = useSendMessage();
+  const { deleteChats, isDeletingChat } = useDeleteChats();
 
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
@@ -59,10 +61,13 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
 
   return (
     // dvh follows iOS Safari's collapsing toolbar; fixed h-160 on desktop only.
-    <div className={`h-[65dvh] md:h-160 w-full flex flex-col ${className}`}>
+    <div
+      className={`h-[65dvh] lg:140 md:h-120 w-full flex flex-col ${className}`}
+    >
       <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3">
         <ChatMessage type="received">
-          Hello there, How can i assist you?
+          Hi! Tell me your plans in your own words, and I’ll add them to your
+          calendar.
         </ChatMessage>
 
         {/* Loading state for chat history */}
@@ -115,19 +120,29 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-          <div className="flex items-center justify-between px-2 text-xs text-gray-500">
-            <span>Parser / Model:</span>
-            {/* text-base on mobile (16px) stops iOS zooming in on focus */}
-            <select
-              {...register("parser")}
-              disabled={sending}
-              className="bg-transparent border border-white-tertiary rounded px-2 py-1 outline-none text-base md:text-xs cursor-pointer disabled:opacity-50"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 px-2 text-xs text-gray-500">
+              <span>Parser / Model:</span>
+              {/* text-base on mobile (16px) stops iOS zooming in on focus */}
+              <select
+                {...register("parser")}
+                disabled={sending}
+                className="bg-transparent border border-white-tertiary rounded px-2 py-1 outline-none text-base md:text-xs cursor-pointer disabled:opacity-50"
+              >
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+                <option value="qwen">Qwen</option>
+                <option value="nlp">NLP Libraries</option>
+              </select>
+            </div>
+            <Button
+              type="outline"
+              className="text-sm text-black-tertiary px-1! py-0.5! w-fit!"
+              onClick={deleteChats}
+              disabled={isDeletingChat}
             >
-              <option value="openai">OpenAI</option>
-              <option value="gemini">Gemini</option>
-              <option value="qwen">Qwen</option>
-              <option value="nlp">NLP Libraries</option>
-            </select>
+              Reset chats
+            </Button>
           </div>
           <div className="p-1 border border-white-tertiary bg-white flex items-center rounded-full">
             <Input

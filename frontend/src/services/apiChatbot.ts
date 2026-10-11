@@ -1,5 +1,4 @@
 const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_URL);
 
 export type ParserType = "openai" | "gemini" | "qwen" | "nlp";
 
@@ -59,6 +58,30 @@ export async function sendMessage({ message, parser }: SendMessageParams) {
   } catch (error) {
     console.error(
       "Error sending message:",
+      error instanceof Error ? error.message : error,
+    );
+    throw error;
+  }
+}
+
+export async function deleteChats() {
+  try {
+    const res = await fetch(`${API_URL}/chat`, {
+      credentials: "include",
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Failed to delete chats: ${res.status} ${res.statusText}`,
+      );
+    }
+
+    const json = await res.json();
+    return json.data;
+  } catch (error) {
+    console.error(
+      "Error deleting chats:",
       error instanceof Error ? error.message : error,
     );
     throw error;

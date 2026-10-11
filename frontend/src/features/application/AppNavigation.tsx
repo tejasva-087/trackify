@@ -5,6 +5,7 @@ import {
   TextOutdentIcon,
   PlusIcon,
   SignOutIcon,
+  UserIcon,
 } from "@phosphor-icons/react";
 
 import useLogout from "../authentication/hooks/useLogout";
@@ -90,12 +91,20 @@ function AppNavigation() {
             <div className="mt-5 border-t border-white-tertiary"></div>
           </div>
 
-          <MenuBar.Button
-            className="w-fit! border-danger! p-2 text-danger!"
-            onClick={() => logout()}
-            icon={<SignOutIcon className="h-6 w-6" weight="regular" />}
-            label={isLoggingOut ? "Logging out..." : "Log out"}
-          />
+          <div className="flex flex-col gap-2 w-full">
+            <MenuBar.Button
+              className="w-full p-3 border border-white-tertiary"
+              to="/user"
+              icon={<UserIcon className="h-6 w-6" weight="regular" />}
+              label="Your account"
+            />
+            <MenuBar.Button
+              className="w-fit! border-danger! p-2 text-danger!"
+              onClick={() => logout()}
+              icon={<SignOutIcon className="h-6 w-6" weight="regular" />}
+              label={isLoggingOut ? "Logging out..." : "Log out"}
+            />
+          </div>
         </div>
       </MenuBar.Window>
     </MenuBar>

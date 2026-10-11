@@ -8,15 +8,19 @@ process.on("uncaughtException", (err: Error) => {
   process.exit(1);
 });
 
-const PORT = process.env.PORT;
-
 async function startServer() {
   try {
     await checkDbConnection();
     console.log("✅ Database connected");
 
-    const server = app.listen(PORT, () => {
-      console.log(`🚀 SERVER STARTED ON PORT: ${PORT}`);
+    // Convert PORT to a base-10 number, fallback to 5000 if undefined
+    const PORT = parseInt(process.env.PORT!, 10);
+
+    // Express now matches the exact overload: (number, string, callback)
+    const server = app.listen(PORT, "10.97.168.48", () => {
+      console.log(
+        `🚀 Backend running locally and on network interface: http://10.97.168.48:${PORT}`,
+      );
     });
 
     process.on("unhandledRejection", (err: Error) => {

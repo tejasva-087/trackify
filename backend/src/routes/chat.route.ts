@@ -1,6 +1,7 @@
 import express from "express";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import {
+  deleteChats,
   getChats,
   useGemini,
   useGroqOpenAI,
@@ -12,7 +13,7 @@ const router = express.Router();
 
 router.use(requireAuth);
 
-router.route("/").get(getChats);
+router.route("/").get(getChats).delete(deleteChats);
 router.route("/gemini").post(useGemini);
 router.route("/openai").post(useGroqOpenAI);
 router.route("/qwen").post(useGroqQwen);

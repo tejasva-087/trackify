@@ -37,6 +37,18 @@ export const getChats = catchAsync(
   },
 );
 
+export const deleteChats = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+
+    if (!userId) return next(new AppError("User not authenticated", 401));
+
+    await db.delete(chat).where(eq(chat.userId, userId));
+
+    res.status(200).json({ status: "success" });
+  },
+);
+
 // Converts raw provider/DB errors into messages safe to show to users.
 // The full technical error is still logged on the server.
 function toFriendlyError(error: unknown): AppError {
