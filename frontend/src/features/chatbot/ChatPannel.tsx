@@ -135,14 +135,14 @@ function ChatPannel({ className = "" }: ChatPannelProps) {
                 <option value="nlp">NLP Libraries</option>
               </select>
             </div>
-            <Button
-              type="outline"
-              className="text-sm text-black-tertiary px-1! py-0.5! w-fit!"
-              onClick={deleteChats}
+            <button
+              className="text-sm text-black-tertiary px-1! py-0.5! w-fit! border border-white-tertiary p-3 flex gap-2 items-center justify-center rounded-md cursor-pointer disabled:cursor-not-allowed disabled:text-black-tertiary! disabled:bg-white-tertiary!"
+              type="button"
+              onClick={() => deleteChats()}
               disabled={isDeletingChat}
             >
               Reset chats
-            </Button>
+            </button>
           </div>
           <div className="p-1 border border-white-tertiary bg-white flex items-center rounded-full">
             <Input
