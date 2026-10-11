@@ -12,12 +12,10 @@ async function startServer() {
   try {
     await checkDbConnection();
     console.log("✅ Database connected");
-
-    // Convert PORT to a base-10 number, fallback to 5000 if undefined
-    const PORT = parseInt(process.env.PORT!, 10);
+    const PORT = process.env.PORT!;
 
     // Express now matches the exact overload: (number, string, callback)
-    const server = app.listen(PORT, "10.97.168.48", () => {
+    const server = app.listen(PORT, () => {
       console.log(
         `🚀 Backend running locally and on network interface: http://10.97.168.48:${PORT}`,
       );
